@@ -1,16 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using ToDo_List.Models;
+using ToDo_List.Models.DataBase;
 
 namespace ToDo_List.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ToDoDbContext _dbContext;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(
+            ILogger<HomeController> logger,
+            ToDoDbContext dbContext)
         {
             _logger = logger;
+            _dbContext = dbContext;
         }
 
         public IActionResult Index()

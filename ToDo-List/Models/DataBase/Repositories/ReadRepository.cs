@@ -19,5 +19,10 @@ namespace ToDo_List.Models.DataBase.Repositories
         {
             return await _taskCards.AsNoTracking().ToListAsync();
         }
+
+        public async Task<TaskCard> GetById(Guid id)
+        {
+            return await _taskCards.FindAsync(id);
+        }
     }
 }

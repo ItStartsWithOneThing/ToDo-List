@@ -1,22 +1,228 @@
 html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    box-sizing: border-box;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 400;
+    color: #363636;
+    background-color: #fbf8f0;
+    font-family: 'Roboto', sans-serif;
+}
+
+.big-container {
+    max-width: 1220px;
+    margin: 0 auto;
+    font-weight: 500;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    margin: 25px 0;
+    align-items: center;
+    background-color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+}
+
+.filter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size:16px;
+}
+
+#filter-select {
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    padding: 3px;
+}
+
+#filter-select:hover {
+    cursor:pointer;
+}
+
+.add-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    align-items: center;
+}
+
+.add-button {
+    border-radius: 4px;
+    border: none;
+    padding: 6px;
+    background-color:white;
+}
+
+.add-button:hover {
+    cursor:pointer;
+    background-color: #efefef;
+}
+
+.add-new-card-modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.stop-scrolling {
+    height: 100%;
+    overflow: hidden;
+}
+
+.new-card-form-container{
+    position:relative;
+}
+
+.new-card-form_background {
+    background-color: white;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.new-card-form {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 400px;
+}
+
+.input-title {
+    outline: none;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 28px;
+    color: black;
+    border: none;
+    font-family: 'Roboto', sans-serif;
+    background-color: transparent;
+}
+
+.input-text {
+    outline: none;
+    resize: none;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    color: #363636;
+    border: none;
+    height: 200px;
+    font-family: 'Roboto', sans-serif;
+    background-color: transparent;
+}
+
+.new-card-form-navigation {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 5px;
+}
+
+.priority-slider-container {
+    align-self: start;
+    margin-bottom: 15px;
+}
+
+.priority-slider {
+    height: 4px;
+    width: 80px;
+    outline: none;
+}
+
+.priority-slider:hover {
+    cursor: pointer;
+}
+
+.priority-label {
+    font-size: 10px;
+    display: flex;
+    padding-left: 5px;
+}
+
+.new-card-form_color-button {
+    background-color: transparent;
+    padding: 0 15px;
+    border-radius: 4px;
+    border: none;
+    color: #363636;
+}
+
+.new-card-form_color-button:hover {
+    background-color: #efefef;
+    cursor: pointer;
+}
+
+.new-card-form_btn {
+    background-color: transparent;
+    padding: 4px;
+    border-radius: 4px;
+    font-size: 14px;
+    border: none;
+    width: 80px;
+}
+
+.new-card-form_btn:hover {
+    cursor: pointer;
+    background-color: #efefef;
+}
+
+.bg-color-container {
+    display: none;
+    margin-top: 10px;
+    position: absolute;
+    right: 0%;
+    left: 0%;
+}
+
+.bg-colors-container-show {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+}
+
+.color-option {
+    font-size: 10px;
+    text-items:center;
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    padding: 10px;
+}
+
+.main {
+    max-width: 1220px;
+    text-align: center;
+    min-height: 80vh;
+    background-color: white;
+    margin: 0 auto;
+    border-radius: 10px;
+}
+
+.main-content {
+    padding: 0px 25px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 15px;
 }

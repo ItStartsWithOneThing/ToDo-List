@@ -1,6 +1,8 @@
 ﻿
+using AutoMapper;
 using ToDo_List.Models.DataBase.Entities;
 using ToDo_List.Models.DataBase.Repositories;
+using ToDo_List.Models.Requests;
 
 namespace ToDo_List.Models.Services
 {
@@ -8,13 +10,16 @@ namespace ToDo_List.Models.Services
     {
         private readonly IReadRepository _readRepo;
         private readonly IWriteRepository _writeRepo;
+        private readonly IMapper _mapper;
 
         public TaskCardService(
             IReadRepository readRepo,
-            IWriteRepository writeRepo)
+            IWriteRepository writeRepo,
+            IMapper mapper)
         {
             _readRepo = readRepo;
             _writeRepo = writeRepo;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<TaskCard>> GetAllTaskCards()
@@ -22,12 +27,20 @@ namespace ToDo_List.Models.Services
             return await _readRepo.GetAll();
         }
 
-        public async Task AddTaskCard(TaskCard taskCard)
+        public async Task<TaskCard> AddTaskCard(AddNewCardRequestModel taskCardRequest)
         {
-            taskCard.Id = Guid.NewGuid();
-            taskCard.CreatedDate = DateTime.Now;
+            var newCard = _mapper.Map<TaskCard>(taskCardRequest);
+            newCard.Id = Guid.NewGuid();
+            newCard.Edited = DateTime.Now;
 
-            await _writeRepo.Add(taskCard);
+            var isCardAdded = await _writeRepo.Add(newCard);
+
+            if(isCardAdded)
+            {
+                return newCard;
+            }
+
+            return null;
         }
 
         public async Task SetTaskCardAsCompleted(Guid id)

@@ -10,6 +10,10 @@ namespace ToDo_List.Models.DataBase.Configuration
         public void Configure(EntityTypeBuilder<TaskCard> builder)
         {
             builder.HasKey(x => x.Id);
+
+            builder.Property(x => x.Edited)
+                    .HasColumnType("timestamp without time zone");
+
         }
     }
 }

@@ -1,30 +1,37 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Text.Json;
 using ToDo_List.Models;
-using ToDo_List.Models.DataBase;
+using ToDo_List.Models.Requests;
+using ToDo_List.Models.Services;
 
 namespace ToDo_List.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ToDoDbContext _dbContext;
+        private readonly ITaskCardService _taskCardService;
 
         public HomeController(
             ILogger<HomeController> logger,
-            ToDoDbContext dbContext)
+            ITaskCardService taskCardService)
         {
             _logger = logger;
-            _dbContext = dbContext;
+            _taskCardService = taskCardService;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Index()
         {
+            var allCards = await _taskCardService.GetAllTaskCards();
+
+            if(allCards == null)
+            {
+                return View();
+            }
+
+            ViewBag.AllCards = JsonSerializer.Serialize(allCards);
+
             return View();
         }
 

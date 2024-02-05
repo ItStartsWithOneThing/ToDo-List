@@ -21,10 +21,10 @@ namespace ToDo_List.Models.DataBase.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task Add(TaskCard taskCard)
+        public async Task<bool> Add(TaskCard taskCard)
         {
-            await _taskCards.AddAsync(taskCard);
-            await _dbContext.SaveChangesAsync();
+            _taskCards.Add(taskCard);
+            return await _dbContext.SaveChangesAsync() != 0;
         }
 
         public async Task Delete(Guid id)

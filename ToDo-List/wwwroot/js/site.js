@@ -19,7 +19,7 @@ const handleShowAddNewCardInput = () => {
                     <input type="range" min="1" max="3" value="1" class="priority-slider">
                 </div>
                 <button onclick="" type="button" class="new-card-form_color-button"><i class="fa-solid fa-palette"></i></button>
-                <button type="submit" form="new-card-form-id" class="new-card-form_btn">Confirm</button>
+                <button type="button" onClick="sendNewCard()" class="new-card-form_btn">Confirm</button>
                 <button class="new-card-form_btn new-card-form_btn-close">Cancel</button>
             </div>
         </div>
@@ -96,26 +96,38 @@ window.addEventListener("keydown", (e) => {
 //Modal window section start end
 
 
+const filterCardsBy = () => {
+
+}
+
 let allCards = JSON.parse(document.getElementById("allCards").value);
 
 const sendNewCard = async () => {
-    let _title = document.querySelector(".input-title").value;
-    let _text = document.querySelector(".input-text").value;
-    let _priority = document.querySelector(".priority-slider").value;
-    let _color = document.querySelector(".new-card-form_background").style.backgroundColor;
+    let newTaskCard = {
+        title: document.querySelector(".input-title").value,
+        text: document.querySelector(".input-text").value,
+        backgroundColor: window.getComputedStyle(document.querySelector(".new-card-form_background")).backgroundColor,
+        priority: parseInt(document.querySelector(".priority-slider").value)
+    };
 
-    let newTaskCard = { title: _title, text: _text, priority: _priority, backgroundcolor: _color };
-
-    const requestOptions = {
+    let requestOptions = {
         method: 'POST',
-        headers: { "Accept": "application/json" },
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
         body: JSON.stringify(newTaskCard)
     };
 
-    const response = await fetch("https://localhost:7271/home/add-card", requestOptions);
-    const responseCard = await response.json();
+    const response = await fetch("https://localhost:7271/api/Task/add-card", requestOptions);
 
-    allCards.add(JSON.parse(responseCard));
+    if (await response.ok) {
+        const responseCard = await response.json();
+
+        allCards.add(JSON.parse(responseCard));
+    }
+    else {
+        alert("Try to add task again");
+    }
+
+    closeModalWindow();
 }
 
 

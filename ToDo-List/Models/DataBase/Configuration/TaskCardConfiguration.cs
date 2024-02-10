@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ToDo_List.Models.DataBase.Entities;
+using ToDo_List.Models.DataBase.Seed;
 
 namespace ToDo_List.Models.DataBase.Configuration
 {
@@ -14,6 +15,7 @@ namespace ToDo_List.Models.DataBase.Configuration
             builder.Property(x => x.EditedDate)
                     .HasColumnType("timestamp without time zone");
 
+            builder.HasData(TaskCardSeedData.GetData());
         }
     }
 }

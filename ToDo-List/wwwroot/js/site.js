@@ -313,6 +313,18 @@ function sortCards(collection) {
     let activeSortArrowEl = document.querySelector(".active-sort-arrow");
     let sortDirection = activeSortArrowEl.getAttribute("sort-direction");
 
+    if (selector === "title") {
+        return collection.sort(function (a, b) {
+            if (a[selector].toLowerCase() < b[selector].toLowerCase()) {
+                return sortDirection === "up" ? -1 : 1;
+            }
+            if (a[selector].toLowerCase() > b[selector].toLowerCase()) {
+                return sortDirection === "up" ? 1 : -1;
+            }
+            return 0;
+        });
+    }
+
     return collection.sort(function (a, b) {
         if (a[selector] < b[selector]) {
             return sortDirection === "up" ? -1 : 1;

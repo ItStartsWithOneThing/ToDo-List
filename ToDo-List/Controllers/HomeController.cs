@@ -1,8 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using System.Text.Json;
-using ToDo_List.Models;
 using ToDo_List.Models.Services;
 
 namespace ToDo_List.Controllers
@@ -37,12 +35,6 @@ namespace ToDo_List.Controllers
             ViewBag.AllCards = JsonSerializer.Serialize(allCards, options);
 
             return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

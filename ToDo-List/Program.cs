@@ -41,16 +41,14 @@ builder.Services.AddScoped<ITaskCardService, TaskCardService>();
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "ToDo-List v1");
+    });
 }
-
-app.UseSwagger();
-app.UseSwaggerUI(options =>
-{
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "ToDo-List v1");
-});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

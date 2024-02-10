@@ -15,10 +15,10 @@ namespace ToDo_List.Models.DataBase.Repositories
             _taskCards = _dbContext.Set<TaskCard>();
         }
 
-        public async Task Update(TaskCard taskCard)
+        public async Task<int> Update(IEnumerable<TaskCard> taskCards)
         {
-            _taskCards.Entry(taskCard).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
+            _taskCards.UpdateRange(taskCards);
+            return await _dbContext.SaveChangesAsync();
         }
 
         public async Task<bool> Add(TaskCard taskCard)
@@ -27,12 +27,12 @@ namespace ToDo_List.Models.DataBase.Repositories
             return await _dbContext.SaveChangesAsync() != 0;
         }
 
-        public async Task Delete(Guid id)
+        public async Task<bool> Delete(Guid id)
         {
             var taskCardToDelete = new TaskCard() { Id = id };
 
             _dbContext.Entry(taskCardToDelete).State = EntityState.Deleted;
-            await _dbContext.SaveChangesAsync();
+            return await _dbContext.SaveChangesAsync() != 0;
         }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using ToDo_List.Controllers.Filters;
 using ToDo_List.Models.DataBase;
 using ToDo_List.Models.DataBase.Repositories;
 using ToDo_List.Models.MappingProfiles;
@@ -9,8 +10,20 @@ using ToDo_List.Models.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
-builder.Services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "ToDo-List", Version = "v1" }));
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNameCaseInsensitive = true)
+    .AddMvcOptions(options =>
+    {
+        options.Filters.Add<ValidatonActionFilter>();
+    });
+
+builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ToDo-List", Version = "v1" });
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+});
 
 string connection = builder.Configuration.GetConnectionString("IdentityConnection");
 builder.Services.AddDbContext<ToDoDbContext>(options => options.UseNpgsql(connection));
@@ -47,7 +60,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    name: "default-home",
+    pattern: "{controller=Home}/{action=Index}");
+
 
 app.Run();

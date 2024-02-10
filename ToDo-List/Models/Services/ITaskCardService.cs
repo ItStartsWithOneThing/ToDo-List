@@ -1,15 +1,14 @@
 ﻿
-using ToDo_List.Models.DataBase.Entities;
-using ToDo_List.Models.Requests;
+using ToDo_List.Controllers.Requests;
+using ToDo_List.Models.DTO;
 
 namespace ToDo_List.Models.Services
 {
     public interface ITaskCardService
     {
-        public Task<IEnumerable<TaskCard>> GetAllTaskCards();
-        public Task<TaskCard> AddTaskCard(AddNewCardRequestModel taskCard);
-        public Task SetTaskCardAsCompleted(Guid id);
-        public Task SetTaskCardTitle(Guid id, string newTitle);
-        public Task DeleteTaskCard(Guid id);
+        public Task<IEnumerable<TaskCardDto>> GetAllTaskCards();
+        public Task<TaskCardDto> AddTaskCard(AddNewCardRequestModel taskCard);
+        public Task<bool> UpdateTaskCards(IEnumerable<TaskCardDto> cards);
+        public Task<bool> DeleteTaskCard(Guid id);
     }
 }

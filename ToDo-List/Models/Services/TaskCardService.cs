@@ -1,70 +1,103 @@
 ﻿
 using AutoMapper;
+using ToDo_List.Controllers.Requests;
 using ToDo_List.Models.DataBase.Entities;
 using ToDo_List.Models.DataBase.Repositories;
-using ToDo_List.Models.Requests;
+using ToDo_List.Models.DTO;
 
 namespace ToDo_List.Models.Services
 {
     public class TaskCardService : ITaskCardService
     {
+        private readonly ILogger<TaskCardService> _logger;
         private readonly IReadRepository _readRepo;
         private readonly IWriteRepository _writeRepo;
         private readonly IMapper _mapper;
 
         public TaskCardService(
+            ILogger<TaskCardService> logger,
             IReadRepository readRepo,
             IWriteRepository writeRepo,
             IMapper mapper)
         {
+            _logger = logger;
             _readRepo = readRepo;
             _writeRepo = writeRepo;
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<TaskCard>> GetAllTaskCards()
+        public async Task<IEnumerable<TaskCardDto>> GetAllTaskCards()
         {
-            return await _readRepo.GetAll();
+            try
+            {
+                var result = await _readRepo.GetAll();
+                return _mapper.Map<IEnumerable<TaskCardDto>>(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, ex);
+                return null;
+            }
+            
         }
 
-        public async Task<TaskCard> AddTaskCard(AddNewCardRequestModel taskCardRequest)
+        public async Task<TaskCardDto> AddTaskCard(AddNewCardRequestModel taskCardRequest)
         {
             var newCard = _mapper.Map<TaskCard>(taskCardRequest);
             newCard.Id = Guid.NewGuid();
-            newCard.Edited = DateTime.Now;
+            newCard.EditedDate = DateTime.Now;
 
-            var isCardAdded = await _writeRepo.Add(newCard);
-
-            if(isCardAdded)
+            try
             {
-                return newCard;
+                var isCardAdded = await _writeRepo.Add(newCard);
+
+                if (isCardAdded)
+                {
+                    return _mapper.Map<TaskCardDto>(newCard);
+                }
+                else
+                {
+                    return null;
+                }
             }
-
-            return null;
-        }
-
-        public async Task SetTaskCardAsCompleted(Guid id)
-        {
-            var taskCard = await _readRepo.GetById(id);
-            taskCard.Completed = true;
-
-            await _writeRepo.Update(taskCard);
-        }
-
-        public async Task SetTaskCardTitle(Guid id, string newTitle)
-        {
-            var taskCard = await _readRepo.GetById(id);
-
-            if(taskCard.Title != newTitle)
+            catch (Exception ex)
             {
-                taskCard.Title = newTitle;
-                await _writeRepo.Update(taskCard);
+                _logger.LogError(ex.Message, ex);
+                return null;
             }
         }
 
-        public async Task DeleteTaskCard(Guid id)
+        public async Task<bool> UpdateTaskCards(IEnumerable<TaskCardDto> cards)
         {
-            await _writeRepo.Delete(id);
+            try
+            {
+                var targetCars = _mapper.Map<IEnumerable<TaskCard>>(cards);
+                var result = await _writeRepo.Update(targetCars);
+                if(result < cards.Count())
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.Message, ex, cards.Count());
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteTaskCard(Guid id)
+        {
+            try
+            {
+                return await _writeRepo.Delete(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, ex, id);
+                return false;
+            }
         }
     }
 }

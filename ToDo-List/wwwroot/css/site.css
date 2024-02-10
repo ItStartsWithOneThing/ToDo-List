@@ -28,7 +28,7 @@ body {
     border-radius: 10px;
 }
 
-.filter-container {
+.sort-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -36,15 +36,99 @@ body {
     font-size:16px;
 }
 
-#filter-select {
+#sort-select {
     border-radius: 4px;
     font-size: 14px;
     outline: none;
     padding: 3px;
 }
 
-#filter-select:hover {
+#sort-select:hover {
     cursor:pointer;
+}
+
+.sort-direction {
+    display: flex;
+    height: 20px;
+    gap: 5px;
+}
+
+.sort-direction:hover {
+    cursor: pointer;
+}
+
+.sort-direction_img {
+    border-radius: 3px;
+    width: 15px;
+}
+
+.active-sort-arrow {
+    background-color: #efefef;
+}
+
+.filter-container {
+    display: flex;
+    gap: 20px;
+}
+
+.toggle {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.toggle-switch {
+    display: inline-block;
+    background: #efefef;
+    border-radius: 16px;
+    width: 36px;
+    height: 20px;
+    position: relative;
+    vertical-align: middle;
+    transition: background 0.25s;
+}
+
+.toggle-switch:before, .toggle-switch:after {
+    content: "";
+}
+
+
+.toggle-switch:before {
+    display: block;
+    background: linear-gradient(to bottom, #fff 0%, #eee 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    transition: left 0.25s;
+}
+
+.toggle:hover .toggle-switch:before {
+    background: linear-gradient(to bottom, #fff 0%, #fff 100%);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+.toggle-checkbox:checked + .toggle-switch {
+    background: #363636;
+}
+
+.toggle-checkbox:checked + .toggle-switch:before {
+    left: 20px;
+}
+
+.toggle-checkbox {
+    position: absolute;
+    visibility: hidden;
+}
+
+.toggle-label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: 3px;
+    position: relative;
+    top: 2px;
 }
 
 .add-container {
@@ -66,7 +150,7 @@ body {
     background-color: #efefef;
 }
 
-.add-new-card-modal {
+.card-modal {
     display: none;
     position: fixed;
     z-index: 100;
@@ -84,19 +168,13 @@ body {
     align-items: center;
 }
 
-.stop-scrolling {
-    height: 100%;
-    overflow: hidden;
-}
-
-.new-card-form-container{
-    position:relative;
+.modal-card-form-container {
+    margin: 50px auto;
 }
 
 .new-card-form_background {
     background-color: white;
     border-radius: 6px;
-    margin-bottom: 10px;
     padding: 10px;
 }
 
@@ -105,16 +183,19 @@ body {
     justify-content: space-between;
     flex-direction: column;
     gap: 10px;
-    min-width: 400px;
+    min-width: 450px;
 }
 
 .input-title {
     outline: none;
+    min-height: 30px;
+    max-height: 100px;
+    resize: none;
     font-size: 22px;
     font-weight: 400;
     letter-spacing: 0;
     line-height: 28px;
-    color: black;
+    color: #202124;
     border: none;
     font-family: 'Roboto', sans-serif;
     background-color: transparent;
@@ -122,21 +203,22 @@ body {
 
 .input-text {
     outline: none;
+    max-height: 400px;
     resize: none;
     font-size: 16px;
     font-weight: 400;
     line-height: 24px;
     color: #363636;
     border: none;
-    height: 200px;
     font-family: 'Roboto', sans-serif;
     background-color: transparent;
 }
 
 .new-card-form-navigation {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-around;
     gap: 5px;
+    margin-top: 10px;
 }
 
 .priority-slider-container {
@@ -156,6 +238,8 @@ body {
 
 .priority-label {
     font-size: 10px;
+    font-weight: 700;
+    color: #363636;
     display: flex;
     padding-left: 5px;
 }
@@ -212,7 +296,6 @@ body {
 
 .main {
     max-width: 1220px;
-    text-align: center;
     min-height: 80vh;
     background-color: white;
     margin: 0 auto;
@@ -220,9 +303,157 @@ body {
 }
 
 .main-content {
-    padding: 0px 25px;
+    padding: 30px 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.card {
+    border: 0.9px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 10px;
+    width: 253px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card:hover {
+    box-shadow: 0px 2px 4px 0px #9e9e9e;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 28px;
+    color: #202124;
+    font-family: 'Roboto', sans-serif;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-title_img {
+    width: 15px;
+}
+.card-title_img:hover {
+    cursor: pointer;
+}
+
+.card-body {
+    height: 60%;
+}
+
+.card-text {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-footer_priority {
+    font-size: 10px;
+    font-weight: 700;
+    color: #363636;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.card-footer_priority {
+    margin: 0px;
+}
+
+
+
+.edit-card-modal {
+    background-color: white;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 450px;
+}
+
+.edit-card-modal_header {
+    position: relative;
+}
+
+.edit-input-title {
+    outline: none;
+    min-height: 30px;
+    max-height: 100px;
+    width: 95%;
+    resize: none;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 28px;
+    color: #202124;
+    border: none;
+    font-family: 'Roboto', sans-serif;
+    background-color: transparent;
+}
+
+.edit-card-title_img {
+    width: 15px;
+    z-index: 1;
+    position: absolute;
+}
+
+.edit-card-title_img:hover {
+    cursor: pointer;
+}
+
+.edit-card-modal_body {
+}
+
+.edit-input-text {
+    outline: none;
+    max-height: 400px;
+    width: 100%;
+    resize: none;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    color: #363636;
+    border: none;
+    font-family: 'Roboto', sans-serif;
+    background-color: transparent;
+}
+
+.edit-date-container {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
-    gap: 15px;
+    justify-content: flex-end;
 }
+
+.edit-date {
+    font-size: 12px;
+    margin: 10px;
+}
+
+.edit-card-modal_footer {
+    display: flex;
+    justify-content: space-around;
+    gap: 5px;
+}
+

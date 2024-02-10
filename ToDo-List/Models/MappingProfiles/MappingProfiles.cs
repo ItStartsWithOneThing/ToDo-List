@@ -1,7 +1,8 @@
 ﻿
 using AutoMapper;
+using ToDo_List.Controllers.Requests;
 using ToDo_List.Models.DataBase.Entities;
-using ToDo_List.Models.Requests;
+using ToDo_List.Models.DTO;
 
 namespace ToDo_List.Models.MappingProfiles
 {
@@ -10,6 +11,8 @@ namespace ToDo_List.Models.MappingProfiles
         public MappingProfiles()
         {
             CreateMap<AddNewCardRequestModel, TaskCard>();
+
+            CreateMap<TaskCardDto, TaskCard>().ReverseMap();
         }
     }
 }

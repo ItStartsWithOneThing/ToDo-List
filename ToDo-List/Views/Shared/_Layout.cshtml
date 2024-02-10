@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ToDo_List</title>
+    <title>ToDo_List</title>
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,17 +14,33 @@
     <header class="header">
         <div class="big-container">
             <nav class="nav">
-                <div class="filter-container">
-                    <label for="filter-select">Filter by</label>
-                    <select id="filter-select" onchange="applyFilter()">
-                        <option value="Name">Name</option>
-                        <option value="Date">Date</option>
-                        <option value="Priority">Priority</option>
+                <div class="sort-container">
+                    <label for="sort-select">Sort by</label>
+                    <select id="sort-select" onchange="showAllCards()">
+                        <option class="select-option" value="title">Name</option>
+                        <option class="select-option" value="editedDate">Date</option>
+                        <option class="select-option" value="priority">Priority</option>
                     </select>
+                    <div class="sort-direction" onclick="changeSortDirection()">
+                        <image class="sort-direction_img sort-direction_img-up active-sort-arrow" src="./images/arrow-up.svg" alt="asc" sort-direction="up" />
+                        <image class="sort-direction_img sort-direction_img-down" src="./images/arrow-down.svg" alt="desc" sort-direction="down" />
+                    </div>
+                </div>
+                <div class="filter-container">
+                    <label class="toggle" onclick="showAllCards()">
+                        <span class="toggle-label">In progress</span>
+                        <input class="toggle-checkbox toggle-checkbox-in-progress" type="checkbox" checked>
+                        <div class="toggle-switch"></div>
+                    </label>
+                    <label class="toggle" onclick="showAllCards()">
+                        <span class="toggle-label">Done</span>
+                        <input class="toggle-checkbox toggle-checkbox-done" type="checkbox" checked>
+                        <div class="toggle-switch"></div>
+                    </label>
                 </div>
                 <div class="add-container">
                     <label for="add-button">Add New</label>
-                    <button onclick="handleShowAddNewCardInput()" type="button" class="add-button"><i class="fa-solid fa-plus"></i></button>
+                    <button onclick="handleShowAddNewCardModal()" type="button" class="add-button"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </nav>
         </div>
@@ -32,12 +48,13 @@
     <main class="main">
         <div class="main-content">
             @RenderBody()
-        <div/>
-        <div class="add-new-card-modal"></div>
+        </div>
+        <div class="card-modal"></div>
     </main>
 
     <footer>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

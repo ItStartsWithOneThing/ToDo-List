@@ -11,7 +11,7 @@ namespace ToDo_List.Models.DataBase.Configuration
         {
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.Edited)
+            builder.Property(x => x.EditedDate)
                     .HasColumnType("timestamp without time zone");
 
         }

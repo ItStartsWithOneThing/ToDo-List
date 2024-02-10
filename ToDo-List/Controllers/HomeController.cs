@@ -1,8 +1,8 @@
+
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text.Json;
 using ToDo_List.Models;
-using ToDo_List.Models.Requests;
 using ToDo_List.Models.Services;
 
 namespace ToDo_List.Controllers
@@ -30,7 +30,11 @@ namespace ToDo_List.Controllers
                 return View();
             }
 
-            ViewBag.AllCards = JsonSerializer.Serialize(allCards);
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            ViewBag.AllCards = JsonSerializer.Serialize(allCards, options);
 
             return View();
         }

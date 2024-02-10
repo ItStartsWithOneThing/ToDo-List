@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ToDo_List.Models.DataBase;
@@ -11,9 +12,11 @@ using ToDo_List.Models.DataBase;
 namespace ToDo_List.Models.DataBase.Migrations
 {
     [DbContext(typeof(ToDoDbContext))]
-    partial class ToDoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240209111842_renamed_edited_added_recentlyEdited")]
+    partial class renamed_edited_added_recentlyEdited
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,6 +43,9 @@ namespace ToDo_List.Models.DataBase.Migrations
 
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("RecentlyEdited")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Text")
                         .HasColumnType("text");

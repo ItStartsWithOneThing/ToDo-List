@@ -7,6 +7,7 @@ const checkboxInProgressEl = document.querySelector(".toggle-checkbox-in-progres
 const checkboxDoneEl = document.querySelector(".toggle-checkbox-done");
 
 let allCards = JSON.parse(document.getElementById("allCards").value);
+allCards.forEach(x => x.editedDate = new Date(x.editedDate));
 showAllCards();
 
 //Modal window section start
@@ -406,7 +407,6 @@ function toggleCardStatus(event) {
 
     let cardId = cardImageEl.getAttribute("data-id");
     let card = allCards.find(x => x.id === cardId);
-    console.log(cardId);
     card.completed = !card.completed;
     card.editedDate = new Date();
     card.hasUnsavedChanges = true;
@@ -416,7 +416,7 @@ function toggleCardStatus(event) {
     event.stopPropagation();
 }
 
-const debouncedUpdateCards = _.debounce(updateCards, 5000);
+const debouncedUpdateCards = _.debounce(updateCards, 1500);
 
 function updateCards() {
     let targetCards = allCards.filter(x => x.hasUnsavedChanges === true);

@@ -6,7 +6,9 @@ namespace ToDo_List.Models.DataBase
 {
     public class ToDoDbContext : DbContext
     {
-        public ToDoDbContext(DbContextOptions<ToDoDbContext> options) : base(options) {
+        public ToDoDbContext(DbContextOptions<ToDoDbContext> options) : base(options) 
+        {
+            Database.EnsureCreated();
         }
 
         public DbSet<TaskCard> TaskCards { get; set; }
@@ -14,6 +16,7 @@ namespace ToDo_List.Models.DataBase
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ToDoDbContext).Assembly);
+
         }
     }
 }

@@ -41,7 +41,7 @@ namespace ToDo_List.Models.DataBase.Seed
                 new ()
                 {
                     Id = Guid.NewGuid(),
-                    Title = "Moovies",
+                    Title = "Movies",
                     Text = "Movies that I should watch this winter: Harry Potter (all parts), Lord of the ring + Hobbit (all parts), ",
                     EditedDate = DateTime.Parse("2024-01-02 10:30:00"),
                     Completed = false,
@@ -52,10 +52,10 @@ namespace ToDo_List.Models.DataBase.Seed
                 {
                     Id = Guid.NewGuid(),
                     Title = "Basic text for filling",
-                    Text = "Skeeng in Karpaty",
+                    Text = basicText,
                     EditedDate = DateTime.Parse("2024-02-05 14:30:00"),
                     Completed = false,
-                    BackgroundColor = basicText,
+                    BackgroundColor = "#d0f4de",
                     Priority = Priority.Medium
                 }
             };

@@ -51,13 +51,6 @@ namespace ToDo_List.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateCards([FromBody] IEnumerable<TaskCardDto> request)
         {
-            if (!ModelState.IsValid)
-            {
-                Console.WriteLine();
-                Console.WriteLine(ModelState.Values);
-                return BadRequest(new { Errors = ModelState.Values.SelectMany(v => v.Errors) });
-            }
-
             var result = await _taskCardService.UpdateTaskCards(request);
             return result == true ? Ok($"Updated {request.Count()} cards") : BadRequest($"Failed to update {request.Count()} cards");
         }

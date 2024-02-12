@@ -45,7 +45,7 @@ namespace ToDo_List.Models.DataBase.Seed
                     Text = "Movies that I should watch this winter: Harry Potter (all parts), Lord of the ring + Hobbit (all parts), ",
                     EditedDate = DateTime.Parse("2024-01-02 10:30:00"),
                     Completed = false,
-                    BackgroundColor = "#white",
+                    BackgroundColor = "white",
                     Priority = Priority.Low
                 },
                 new ()

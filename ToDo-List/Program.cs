@@ -17,6 +17,13 @@ builder.Services.AddControllersWithViews()
         options.Filters.Add<ValidatonActionFilter>();
     });
 
+builder.Services.AddCors(options => options.AddPolicy("MyCORS", builder => builder
+                    .WithOrigins("https://google.com")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod())
+               );
+
+
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ToDo-List", Version = "v1" });
 
@@ -51,6 +58,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("MyCORS");
+
 app.UseStaticFiles();
 
 app.UseRouting();

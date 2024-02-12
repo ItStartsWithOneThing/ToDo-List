@@ -21,7 +21,7 @@ namespace ToDo_List.Models.DataBase.Seed
                 new ()
                 {
                     Id = Guid.NewGuid(),
-                    Title = "Diner",
+                    Title = "Dinner",
                     Text = "Order some pizza",
                     EditedDate = DateTime.Parse("2024-02-05 14:30:00"),
                     Completed = false,

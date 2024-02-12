@@ -18,7 +18,7 @@ builder.Services.AddControllersWithViews()
     });
 
 builder.Services.AddCors(options => options.AddPolicy("MyCORS", builder => builder
-                    .WithOrigins("https://google.com")
+                    .WithOrigins("https://localhost:7274")
                     .AllowAnyHeader()
                     .AllowAnyMethod())
                );

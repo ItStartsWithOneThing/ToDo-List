@@ -137,7 +137,7 @@ function handleEditCard(card) {
 
     debouncedUpdateCards();
 
-    showAllCards();
+    showAllCards(allCards);
 }
 
 function toggleCardStatus(event) {
@@ -174,11 +174,11 @@ function updateCards() {
                 throw new Error('Something went wrong');
             }
             targetCards.forEach(x => x.hasUnsavedChanges = false);
-            showAllCards();
+            showAllCards(allCards);
         })
         .catch(error => {
             alert(`${error}. Try to edit later`);
-            showAllCards();
+            showAllCards(allCards);
         });
 }
 
@@ -194,7 +194,7 @@ function handleDeleteCard(card) {
             promiseResult
                 .then(data => {
                     allCards.splice(indexToRemove, 1);
-                    showAllCards();
+                    showAllCards(allCards);
                     alert(`Successfully deleted ${title}`);
                 })
                 .catch(error => {

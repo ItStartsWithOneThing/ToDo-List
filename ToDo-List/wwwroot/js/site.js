@@ -4,26 +4,59 @@ import { handleShowEditCardModal, toggleCardStatus } from './modal-edit.js';
 import { handleShowAddNewCardModal } from './modal-add.js';
 import { getPriorityText, closeModalWindow } from './common.js';
 
-const rootAddress = "https://localhost:7274";
+const rootAddress = "https://localhost:7271";
 
 let allCardsEl = document.getElementById("allCards");
 let allCards = JSON.parse(allCardsEl.value);
 allCards.forEach(x => x.editedDate = new Date(x.editedDate));
-showAllCards();
+showAllCards(allCards);
+
 
 const sortSelectorEl = document.getElementById("sort-select");
-sortSelectorEl.addEventListener('change', () => showAllCards());
+sortSelectorEl.addEventListener('change', () => showAllCards(allCards));
 
 const sortDirectionEl = document.querySelector(".sort-direction");
-sortDirectionEl.addEventListener('click', () => changeSortDirection());
+sortDirectionEl.addEventListener('click', () => changeSortDirection(allCards));
+
+
+const searchContainerEl = document.querySelector(".search-container");
+const inputSearchEl = document.querySelector(".search-input");
+const searchTextRemoveBtnEl = document.querySelector(".search-text-remove-btn");
+inputSearchEl.addEventListener('focus', function () {
+    searchContainerEl.classList.add('search-container--active');
+    searchTextRemoveBtnEl.classList.add('search-text-remove-btn--visible');
+});
+
+inputSearchEl.addEventListener('blur', function () {
+    if (!inputSearchEl.value) {
+        searchContainerEl.classList.remove('search-container--active');
+        searchTextRemoveBtnEl.classList.remove('search-text-remove-btn--visible');
+    }
+
+    inputSearchEl.style.minWidth = "280px";
+});
+
+inputSearchEl.addEventListener('input', function () {
+    let requestedText = inputSearchEl.value.toLowerCase();
+    searchCard(requestedText, allCards);
+});
+
+searchTextRemoveBtnEl.addEventListener('click', function () {
+    inputSearchEl.value = '';
+    showAllCards(allCards);
+    searchContainerEl.classList.remove('search-container--active');
+    searchTextRemoveBtnEl.classList.remove('search-text-remove-btn--visible');
+})
 
 const toggleFilterElements = document.querySelectorAll(".toggle");
 toggleFilterElements.forEach(element => {
-    element.addEventListener('click', () => showAllCards())
+    element.addEventListener('click', () => showAllCards(allCards))
 });
+
 
 const addBtn = document.querySelector(".add-button");
 addBtn.addEventListener('click', () => handleShowAddNewCardModal());
+
 
 //Closing modal window by tapping "Escape" buton on keyboard
 window.addEventListener("keydown", (e) => {
@@ -32,6 +65,12 @@ window.addEventListener("keydown", (e) => {
     }
 });
 
+
+function searchCard(text, cardsCollection) {
+    let cards = cardsCollection.filter(x => x.title.toLowerCase().includes(text) || x.text.toLowerCase().includes(text));
+    showAllCards(cards);
+}
+
 function changeSortDirection() {
     let upArrowEl = document.querySelector(".sort-direction_img-up");
     let downArrowEl = document.querySelector(".sort-direction_img-down");
@@ -39,7 +78,7 @@ function changeSortDirection() {
     upArrowEl.classList.toggle("active-sort-arrow");
     downArrowEl.classList.toggle("active-sort-arrow");
 
-    showAllCards();
+    showAllCards(allCards);
 }
 
 function sortCards(collection) {
@@ -71,9 +110,9 @@ function sortCards(collection) {
     });
 }
 
-function filterAllCards() {
-    let inProgressCards = allCards.filter(x => x.completed === false);
-    let doneCards = allCards.filter(x => x.completed === true);
+function filterAllCards(cards) {
+    let inProgressCards = cards.filter(x => x.completed === false);
+    let doneCards = cards.filter(x => x.completed === true);
 
     const checkboxInProgressEl = document.querySelector(".toggle-checkbox-in-progress");
     const showInProgress = checkboxInProgressEl.checked;
@@ -92,17 +131,17 @@ function filterAllCards() {
     }
 
     if (!showInProgress && !showDone) {
-        return allCards;
+        return cards;
     }
 
     return filteredCards;
 }
 
-function showAllCards() {
+function showAllCards(cardsCollection) {
     const mainContentEl = document.querySelector(".main-content");
 
     mainContentEl.innerHTML = '';
-    let currentCards = filterAllCards();
+    let currentCards = filterAllCards(cardsCollection);
     currentCards = sortCards(currentCards);
 
     currentCards.forEach((card) => {

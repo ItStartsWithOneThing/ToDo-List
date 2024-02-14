@@ -87,7 +87,7 @@ function sendNewCard() {
             response.editedDate = new Date(response.editedDate);
 
             allCards.push(response);
-            showAllCards();
+            showAllCards(allCards);
 
             alert("Congrats! Now you have a new task");
             closeModalWindow();

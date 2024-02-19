@@ -1,5 +1,5 @@
 ﻿
-using ToDo_List.Controllers.Requests;
+using ToDo_List.Models.API.Requests;
 using ToDo_List.Models.DTO;
 
 namespace ToDo_List.Models.Services

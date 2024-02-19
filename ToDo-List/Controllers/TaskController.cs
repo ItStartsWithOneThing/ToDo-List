@@ -1,13 +1,15 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ToDo_List.Controllers.Requests;
-using ToDo_List.Controllers.Responses;
+using ToDo_List.Models.API.Requests;
+using ToDo_List.Models.API.Responses;
 using ToDo_List.Models.DataBase.Entities;
 using ToDo_List.Models.DTO;
 using ToDo_List.Models.Services;
 
 namespace ToDo_List.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]

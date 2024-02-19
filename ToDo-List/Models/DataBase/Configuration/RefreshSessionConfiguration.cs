@@ -2,25 +2,19 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ToDo_List.Models.DataBase.Entities;
-using ToDo_List.Models.DataBase.Seed;
 
 namespace ToDo_List.Models.DataBase.Configuration
 {
-    public class TaskCardConfiguration : IEntityTypeConfiguration<TaskCard>
+    public class RefreshSessionConfiguration : IEntityTypeConfiguration<RefreshSession>
     {
-        public void Configure(EntityTypeBuilder<TaskCard> builder)
+        public void Configure(EntityTypeBuilder<RefreshSession> builder)
         {
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.EditedDate)
-                    .HasColumnType("timestamp without time zone");
-
             builder.HasOne(x => x.User)
-                .WithMany(x => x.TaskCards)
+                .WithMany(x => x.RefreshSessions)
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasData(TaskCardSeedData.GetData());
         }
     }
 }

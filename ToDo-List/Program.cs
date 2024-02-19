@@ -1,14 +1,61 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using System.Text;
 using ToDo_List.Controllers.Filters;
 using ToDo_List.Models.DataBase;
-using ToDo_List.Models.DataBase.Repositories;
+using ToDo_List.Models.DataBase.Repositories.TaskCardRepositories;
+using ToDo_List.Models.DataBase.Repositories.UserRepositories;
 using ToDo_List.Models.MappingProfiles;
 using ToDo_List.Models.Services;
+using ToDo_List.Models.Services.Auth;
+using ToDo_List.Models.Services.Auth.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<AuthOptionsModel>(options =>
+    builder.Configuration.GetSection("AuthOptions").Bind(options));
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+
+    var key = builder.Configuration.GetSection("JwtSettings").GetValue<string>("SecretKey");
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration.GetSection("JwtSettings").GetValue<string>("Issuer"),
+        ValidAudience = builder.Configuration.GetSection("JwtSettings").GetValue<string>("Audience"),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            context.Response.Redirect("/Home/Login");
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            context.Response.Redirect("/Home/Login");
+            return Task.CompletedTask;
+        }
+    };
+});
 
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNameCaseInsensitive = true)
@@ -41,8 +88,12 @@ var assemblies = new[]
 };
 builder.Services.AddAutoMapper(assemblies);
 
-builder.Services.AddScoped<IReadRepository, ReadRepository>();
-builder.Services.AddScoped<IWriteRepository, WriteRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<ITaskCardReadRepository, TaskCardReadRepository>();
+builder.Services.AddScoped<ITaskCardWriteRepository, TaskCardWriteRepository>();
+builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
+builder.Services.AddScoped<IUserWriteRepository, UserWriteRepository>();
 
 builder.Services.AddScoped<ITaskCardService, TaskCardService>();
 

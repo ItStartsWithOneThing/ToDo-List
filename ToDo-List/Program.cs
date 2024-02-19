@@ -1,17 +1,10 @@
 
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using System.Reflection;
-using System.Text;
+using ToDo_List.Controllers.Extensions;
 using ToDo_List.Controllers.Filters;
 using ToDo_List.Models.DataBase;
-using ToDo_List.Models.DataBase.Repositories.TaskCardRepositories;
-using ToDo_List.Models.DataBase.Repositories.UserRepositories;
 using ToDo_List.Models.MappingProfiles;
-using ToDo_List.Models.Services;
-using ToDo_List.Models.Services.Auth;
 using ToDo_List.Models.Services.Auth.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,42 +13,7 @@ builder.Services.Configure<AuthOptionsModel>(options =>
     builder.Configuration.GetSection("AuthOptions").Bind(options));
 
 builder.Services.AddAuthorization();
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-
-    var key = builder.Configuration.GetSection("JwtSettings").GetValue<string>("SecretKey");
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration.GetSection("JwtSettings").GetValue<string>("Issuer"),
-        ValidAudience = builder.Configuration.GetSection("JwtSettings").GetValue<string>("Audience"),
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
-    };
-
-    options.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = context =>
-        {
-            context.Response.Redirect("/Home/Login");
-            return Task.CompletedTask;
-        },
-        OnChallenge = context =>
-        {
-            context.Response.Redirect("/Home/Login");
-            return Task.CompletedTask;
-        }
-    };
-});
+builder.Services.AddJwtAuthenticationExtension(builder.Configuration);
 
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNameCaseInsensitive = true)
@@ -65,22 +23,13 @@ builder.Services.AddControllersWithViews()
     });
 
 builder.Services.AddCors(options => options.AddPolicy("MyCORS", builder => builder
-                    .WithOrigins("https://localhost:7274")
+                    .WithOrigins("https://localhost:7271")
                     .AllowAnyHeader()
                     .AllowAnyMethod())
                );
 
 
-builder.Services.AddSwaggerGen(c => {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ToDo-List", Version = "v1" });
-
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    c.IncludeXmlComments(xmlPath);
-});
-
-string connection = builder.Configuration.GetConnectionString("IdentityConnection");
-builder.Services.AddDbContext<ToDoDbContext>(options => options.UseNpgsql(connection));
+builder.Services.AddSwaggerExtension();
 
 var assemblies = new[]
 {
@@ -88,14 +37,12 @@ var assemblies = new[]
 };
 builder.Services.AddAutoMapper(assemblies);
 
-builder.Services.AddScoped<IAuthService, AuthService>();
+string connection = builder.Configuration.GetConnectionString("IdentityConnection");
+builder.Services.AddDbContext<ToDoDbContext>(options => options.UseNpgsql(connection));
 
-builder.Services.AddScoped<ITaskCardReadRepository, TaskCardReadRepository>();
-builder.Services.AddScoped<ITaskCardWriteRepository, TaskCardWriteRepository>();
-builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
-builder.Services.AddScoped<IUserWriteRepository, UserWriteRepository>();
+builder.Services.AddRepositoriesExtension();
 
-builder.Services.AddScoped<ITaskCardService, TaskCardService>();
+builder.Services.AddBusinessLogicServicesExtension();
 
 var app = builder.Build();
 

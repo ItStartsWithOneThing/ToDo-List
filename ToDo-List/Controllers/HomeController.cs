@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using ToDo_List.Controllers.Extensions;
 using ToDo_List.Models.Services;
 
 namespace ToDo_List.Controllers
@@ -22,7 +23,8 @@ namespace ToDo_List.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var allCards = await _taskCardService.GetAllTaskCards();
+            var userId = HttpContext.GetUserId();
+            var allCards = await _taskCardService.GetAllTaskCards(userId);
 
             if(allCards == null)
             {

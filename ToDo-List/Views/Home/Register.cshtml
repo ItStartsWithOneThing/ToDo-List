@@ -1,0 +1,30 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToDo_List</title>
+    <link rel="stylesheet" href="~/css/auth.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="main">
+        <form class="auth-form" id="auth-form-id">
+            <input type="text" class="auth-form_input auth-form_register-name" placeholder="Name">
+            <input type="email" class="auth-form_input auth-form_register-email" placeholder="Email">
+            <input type="password" class="auth-form_input auth-form_register-password" placeholder="Password">
+            <input type="password" class="auth-form_input auth-fform_register-password-repeat" placeholder="Repeat password">
+            <div class="register-form-buttons">
+                <button type="submit" form="auth-form-id" class="auth-form-buttons_btn">Submit</button>
+            </div>
+        </form>
+    </main>
+    <script src="~/js/auth.js"></script>
+</body>
+</html>

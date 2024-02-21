@@ -1,0 +1,98 @@
+
+* {
+    font-family: 'Roboto', sans-serif;
+}
+
+html,
+body {
+    box-sizing: border-box;
+    min-height: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+body {
+    background-color: #FFEFD5;
+}
+
+.main {
+    max-width: 100%;
+    min-height: 80vh;
+    background-color: white;
+    border-radius: 10px;
+    margin: 10vh 10vh;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+}
+
+.auth-form {
+    width: 340px;
+    border: 2px solid #e5e5e5;
+    border-radius: 10px;
+    background-color: #FFEFD5;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 20px;
+}
+
+.auth-form_input {
+    border: 0.7px solid #e5e5e5;
+    border-radius: 20px;
+    outline: none;
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: 100;
+    color: #363636;
+    transition: all 0.3s ease-in-out;
+}
+
+.auth-form_input:focus {
+    box-shadow: 0px 1px 8px 0px #cdcdcd;
+}
+
+.login-form-buttons {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+    align-items: center;
+}
+
+.register-form-buttons {
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 10px;
+    align-items: center;
+}
+
+.register-link {
+    font-size: 12px;
+    color: #363636;
+    text-decoration: none;
+}
+
+.register-link:hover {
+    cursor: pointer;
+    color: #898989;
+}
+
+.auth-form-buttons_btn {
+    width: 100px;
+    border: 0.7px solid #e5e5e5;
+    border-radius: 20px;
+    background-color: white;
+    font-size: 16px;
+    padding: 10px;
+    color: #363636;
+    transition: all 0.1s ease-in-out;
+}
+
+.auth-form-buttons_btn:hover {
+    cursor: pointer;
+    box-shadow: 0px 1px 5px 0px #cdcdcd;
+    background-color: #d0f4de;
+}

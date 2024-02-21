@@ -10,7 +10,7 @@ const handleShowAddNewCardModal = () => {
 	<div class="modal-card-form-container">
         <div class="new-card-form_background">
             <form id="new-card-form-id" class="new-card-form">
-               <textarea class="input-title" placeholder="Enter card name"/></textarea>
+               <textarea class="input-title" placeholder="Enter card name"></textarea>
                <textarea class="input-text" placeholder="Enter text"></textarea>
             </form>
             <div class="new-card-form-navigation">

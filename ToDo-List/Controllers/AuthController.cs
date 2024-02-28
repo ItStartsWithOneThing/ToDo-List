@@ -43,9 +43,8 @@ namespace ToDo_List.Controllers
 
             if (result == null)
             {
-                _logger.LogTrace($"Authorization failure with email: {request.Email}");
-                Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return Redirect("/Home/Login");
+                _logger.LogInformation($"Authorization failure with email: {request.Email}");
+                return BadRequest(request);
             }
 
             Response.Cookies.Append("RefreshToken", result.RefreshToken.ToString(), new CookieOptions
@@ -55,7 +54,7 @@ namespace ToDo_List.Controllers
                 SameSite = SameSiteMode.Strict                
             });
 
-            _logger.LogTrace($"User with email: {request.Email} has been authorized");
+            _logger.LogInformation($"User with email: {request.Email} has been authorized");
             return Ok(result.AccessToken);
         }
 
@@ -64,7 +63,6 @@ namespace ToDo_List.Controllers
         /// </summary>
         /// <response code="200"></response>
         /// <response code="400"></response>
-        [AllowAnonymous]
         [HttpPost("logout")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

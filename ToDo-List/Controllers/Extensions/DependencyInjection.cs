@@ -50,9 +50,9 @@ namespace ToDo_List.Controllers.Extensions
 
         public static void AddJwtAuthenticationExtension(this IServiceCollection services, IConfiguration configuration)
         {
-            var issuer = configuration.GetSection("JwtSettings").GetValue<string>("Issuer");
-            var audience = configuration.GetSection("JwtSettings").GetValue<string>("Audience");
-            var key = configuration.GetSection("JwtSettings").GetValue<string>("SecretKey");
+            var issuer = configuration.GetSection("AuthOptions").GetValue<string>("Issuer");
+            var audience = configuration.GetSection("AuthOptions").GetValue<string>("Audience");
+            var key = configuration.GetSection("AuthOptions").GetValue<string>("SecretKey");
 
             services.AddAuthentication(options =>
             {
@@ -78,12 +78,7 @@ namespace ToDo_List.Controllers.Extensions
                 {
                     OnAuthenticationFailed = context =>
                     {
-                        context.Response.Redirect("/Home/Login");
-                        return Task.CompletedTask;
-                    },
-                    OnChallenge = context =>
-                    {
-                        context.Response.Redirect("/Home/Login");
+                        context.Request.HttpContext.Response.StatusCode = 401;
                         return Task.CompletedTask;
                     }
                 };

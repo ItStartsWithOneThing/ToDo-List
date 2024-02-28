@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using System.Reflection;
 using ToDo_List.Controllers.Extensions;
 using ToDo_List.Controllers.Filters;
@@ -23,7 +24,7 @@ builder.Services.AddControllersWithViews()
     });
 
 builder.Services.AddCors(options => options.AddPolicy("MyCORS", builder => builder
-                    .WithOrigins("https://localhost:7271")
+                    .WithOrigins("https://localhost:7272")
                     .AllowAnyHeader()
                     .AllowAnyMethod())
                );
@@ -63,11 +64,21 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+
+    if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
+    {
+        response.Redirect("/Home/Login");
+    }
+});
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default-home",
+    name: "default",
     pattern: "{controller=Home}/{action=Index}");
-
 
 app.Run();

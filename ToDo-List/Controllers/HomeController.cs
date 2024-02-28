@@ -26,7 +26,7 @@ namespace ToDo_List.Controllers
             var userId = HttpContext.GetUserId();
             var allCards = await _taskCardService.GetAllTaskCards(userId);
 
-            if(allCards == null)
+            if(allCards == null || allCards.Any() == false)
             {
                 return View();
             }
@@ -42,6 +42,12 @@ namespace ToDo_List.Controllers
 
         [AllowAnonymous]
         public async Task<IActionResult> LogIn()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> Register()
         {
             return View();
         }

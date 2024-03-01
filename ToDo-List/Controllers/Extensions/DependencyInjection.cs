@@ -9,6 +9,8 @@ using ToDo_List.Models.DataBase.Repositories.TaskCardRepositories;
 using ToDo_List.Models.DataBase.Repositories.UserRepositories;
 using ToDo_List.Models.Services.Auth;
 using ToDo_List.Models.Services;
+using Microsoft.AspNetCore.Authorization;
+using ToDo_List.Models.Services.Auth.Policies.OnlyUnauthorizedPolicy;
 
 namespace ToDo_List.Controllers.Extensions
 {
@@ -48,6 +50,17 @@ namespace ToDo_List.Controllers.Extensions
             });
         }
 
+        public static void AddAuthorizationExtension(this IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("UnauthenticatedPolicy", policy =>
+                    policy.Requirements.Add(new UnauthenticatedRequirement()));
+            });
+
+            services.AddSingleton<IAuthorizationHandler, UnauthenticatedHandler>();
+        }
+
         public static void AddJwtAuthenticationExtension(this IServiceCollection services, IConfiguration configuration)
         {
             var issuer = configuration.GetSection("AuthOptions").GetValue<string>("Issuer");
@@ -58,6 +71,7 @@ namespace ToDo_List.Controllers.Extensions
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
             }).AddJwtBearer(options =>
             {
                 options.RequireHttpsMetadata = false;
@@ -79,6 +93,23 @@ namespace ToDo_List.Controllers.Extensions
                     OnAuthenticationFailed = context =>
                     {
                         context.Request.HttpContext.Response.StatusCode = 401;
+
+                        return Task.CompletedTask;
+                    },
+                    OnChallenge = context =>
+                    {
+                        Console.Out.WriteLineAsync();
+                        Console.Out.WriteLineAsync();
+                        Console.Out.WriteLineAsync(context.Request.Headers["Authorization"]);
+                        Console.Out.WriteLineAsync();
+                        Console.Out.WriteLineAsync();
+
+                        Console.WriteLine();
+                        Console.WriteLine();
+                        Console.WriteLine(context.Request.Headers["Authorization"]);
+                        Console.WriteLine();
+                        Console.WriteLine();
+
                         return Task.CompletedTask;
                     }
                 };

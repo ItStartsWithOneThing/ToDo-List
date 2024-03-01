@@ -35,28 +35,37 @@ namespace ToDo_List.Models.Services.Auth
 
         public async Task<TokenAggregateDto> LogIn(LoginRequestModel model)
         {
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password + _authOptions.Pepper);
-            var user = await _userReadRepository.GetUserWithSessions(model.Email, hashedPassword);
+            var user = await _userReadRepository.GetUserWithSessions(model.Email);
 
             if (user == null)
             {
                 return null;
             }
 
+            var isVerified = BCrypt.Net.BCrypt.Verify(model.Password + _authOptions.Pepper, user.Password);
+
+            if (isVerified == false)
+            {
+                return null;
+            }
+
             var newSession = HandleRefreshSessions(user, model);
+            var tokens = new TokenAggregateDto();
 
-            _refreshSessionWriteRepository.Add(newSession);
-            await _refreshSessionWriteRepository.SaveChangesAsync();
-
-            var tokens = new TokenAggregateDto()
+            try
             {
-                AccessToken = _tokenService.GenerateAccessToken(user.Id),
-                RefreshToken = newSession.RefreshToken,
-                RefreshTokenDuration = _authOptions.RefreshTokenDuration
-            };
+                tokens.AccessToken = _tokenService.GenerateAccessToken(user.Id);
+                tokens.AccessTokenDuration = _authOptions.AccessTokenDuration;
+                tokens.RefreshToken = newSession.RefreshToken;
+                tokens.RefreshTokenDuration = _authOptions.RefreshTokenDuration;
 
-            if(tokens.AccessToken == null) 
+                _refreshSessionWriteRepository.Add(newSession);
+                await _refreshSessionWriteRepository.SaveChangesAsync();
+            }
+            catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
+
                 return null;
             }
 
@@ -116,6 +125,7 @@ namespace ToDo_List.Models.Services.Auth
             var tokens = new TokenAggregateDto()
             {
                 AccessToken = _tokenService.GenerateAccessToken(currentSession.UserId),
+                AccessTokenDuration = _authOptions.AccessTokenDuration,
                 RefreshToken = currentSession.RefreshToken,
                 RefreshTokenDuration = _authOptions.RefreshTokenDuration
             };

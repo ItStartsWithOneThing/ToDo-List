@@ -31,7 +31,7 @@ namespace ToDo_List.Controllers
         /// <response code="200">access-token</response>
         /// <response code="400">Request validation error</response>
         /// <response code="401"></response>
-        [AllowAnonymous]
+        [Authorize(Policy = "UnauthenticatedPolicy")]
         [HttpPost("login")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -49,13 +49,17 @@ namespace ToDo_List.Controllers
 
             Response.Cookies.Append("RefreshToken", result.RefreshToken.ToString(), new CookieOptions
             {
-                HttpOnly = true,
-                MaxAge = result.RefreshTokenDuration,
-                SameSite = SameSiteMode.Strict                
+                MaxAge = result.RefreshTokenDuration             
+            });
+
+            Response.Cookies.Append("AccessToken", result.AccessToken, new CookieOptions
+            {
+                MaxAge = result.AccessTokenDuration
             });
 
             _logger.LogInformation($"User with email: {request.Email} has been authorized");
-            return Ok(result.AccessToken);
+
+            return Ok();
         }
 
         /// <summary>
@@ -76,7 +80,9 @@ namespace ToDo_List.Controllers
                 return BadRequest();
             }
 
+            Response.Cookies.Delete("AccessToken");
             Response.Cookies.Delete("RefreshToken");
+
             return Ok();
         }
 
@@ -102,20 +108,22 @@ namespace ToDo_List.Controllers
             if(result == null)
             {
                 _logger.LogTrace($"Authorization failure with refresh-token: {refreshToken}");
-                Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return Redirect("/Home/Login");
+                return Unauthorized();
             }
 
             Response.Cookies.Delete("RefreshToken");
             Response.Cookies.Append("RefreshToken", result.RefreshToken.ToString(), new CookieOptions
             {
-                HttpOnly = true,
-                MaxAge = result.RefreshTokenDuration,
-                SameSite = SameSiteMode.Strict
+                MaxAge = result.RefreshTokenDuration
+            });
+
+            Response.Cookies.Append("AccessToken", result.AccessToken, new CookieOptions
+            {
+                MaxAge = result.AccessTokenDuration
             });
 
             _logger.LogTrace($"User with refresh-token: {result.RefreshToken} has been authorized");
-            return Ok(result.AccessToken);
+            return Ok();
         }
     }
 }

@@ -9,9 +9,9 @@ namespace ToDo_List.Models.DataBase.Repositories.UserRepositories
     {
         public UserReadRepository(ToDoDbContext context) : base(context) {}
 
-        public async Task<User> GetUserWithSessions(string email, string password)
+        public async Task<User> GetUserWithSessions(string email)
         {
-            var result = await _dbSet.AsNoTracking().Where(x => x.Email == email && x.Password == password).Include(x => x.RefreshSessions).FirstOrDefaultAsync();
+            var result = await _dbSet.AsNoTracking().Where(x => x.Email == email).Include(x => x.RefreshSessions).FirstOrDefaultAsync();
             return result;
         }
     }

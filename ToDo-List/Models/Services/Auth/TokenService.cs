@@ -42,7 +42,7 @@ namespace ToDo_List.Models.Services.Auth
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message, $"Cannot create access token for user with id: {userId}");
-                return null;
+                throw;
             }
         }
 

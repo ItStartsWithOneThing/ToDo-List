@@ -1,9 +1,11 @@
 
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Reflection;
 using ToDo_List.Controllers.Extensions;
 using ToDo_List.Controllers.Filters;
+using ToDo_List.Controllers.Middlewares;
 using ToDo_List.Models.DataBase;
 using ToDo_List.Models.MappingProfiles;
 using ToDo_List.Models.Services.Auth.Options;
@@ -13,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<AuthOptionsModel>(options =>
     builder.Configuration.GetSection("AuthOptions").Bind(options));
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationExtension();
 builder.Services.AddJwtAuthenticationExtension(builder.Configuration);
 
 builder.Services.AddControllersWithViews()
@@ -60,9 +62,18 @@ app.UseHttpsRedirection();
 
 app.UseCors("MyCORS");
 
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.Strict,
+    HttpOnly = HttpOnlyPolicy.Always,
+    Secure = CookieSecurePolicy.Always
+});
+
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseMiddleware<TokenHandlerMiddleware>();
 
 app.UseStatusCodePages(async context =>
 {

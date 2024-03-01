@@ -40,13 +40,13 @@ namespace ToDo_List.Controllers
             return View();
         }
 
-        [AllowAnonymous]
+        [Authorize(Policy = "UnauthenticatedPolicy")]
         public async Task<IActionResult> LogIn()
         {
             return View();
         }
 
-        [AllowAnonymous]
+        [Authorize(Policy = "UnauthenticatedPolicy")]
         public async Task<IActionResult> Register()
         {
             return View();

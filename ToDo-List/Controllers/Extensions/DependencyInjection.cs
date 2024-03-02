@@ -9,8 +9,6 @@ using ToDo_List.Models.DataBase.Repositories.TaskCardRepositories;
 using ToDo_List.Models.DataBase.Repositories.UserRepositories;
 using ToDo_List.Models.Services.Auth;
 using ToDo_List.Models.Services;
-using Microsoft.AspNetCore.Authorization;
-using ToDo_List.Models.Services.Auth.Policies.OnlyUnauthorizedPolicy;
 
 namespace ToDo_List.Controllers.Extensions
 {
@@ -52,13 +50,7 @@ namespace ToDo_List.Controllers.Extensions
 
         public static void AddAuthorizationExtension(this IServiceCollection services)
         {
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("UnauthenticatedPolicy", policy =>
-                    policy.Requirements.Add(new UnauthenticatedRequirement()));
-            });
-
-            services.AddSingleton<IAuthorizationHandler, UnauthenticatedHandler>();
+            services.AddAuthorization();
         }
 
         public static void AddJwtAuthenticationExtension(this IServiceCollection services, IConfiguration configuration)

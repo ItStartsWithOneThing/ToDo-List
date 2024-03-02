@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using ToDo_List.Controllers.Extensions;
+using ToDo_List.Controllers.Filters;
 using ToDo_List.Models.Services;
 
 namespace ToDo_List.Controllers
@@ -40,13 +41,15 @@ namespace ToDo_List.Controllers
             return View();
         }
 
-        [Authorize(Policy = "UnauthenticatedPolicy")]
+        [AllowAnonymous]
+        [ForbidAccessForAuthorizedUserFilter]
         public async Task<IActionResult> LogIn()
         {
             return View();
         }
 
-        [Authorize(Policy = "UnauthenticatedPolicy")]
+        [AllowAnonymous]
+        [ForbidAccessForAuthorizedUserFilter]
         public async Task<IActionResult> Register()
         {
             return View();

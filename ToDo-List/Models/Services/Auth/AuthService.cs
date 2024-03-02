@@ -15,6 +15,7 @@ namespace ToDo_List.Models.Services.Auth
         private readonly AuthOptionsModel _authOptions;
         private readonly ITokenService _tokenService;
         private readonly IUserReadRepository _userReadRepository;
+        private readonly IUserWriteRepository _userWriteRepository;
         private readonly IRefreshSessionWriteRepository _refreshSessionWriteRepository;
         private readonly IRefreshSessionReadRepository _refreshSessionReadRepository;
         public AuthService(
@@ -22,45 +23,46 @@ namespace ToDo_List.Models.Services.Auth
             IOptions<AuthOptionsModel> authOptions,
             ITokenService tokenService,
             IUserReadRepository userReadRepository,
-            IRefreshSessionWriteRepository refreshSessionWriteRepository,
+            IUserWriteRepository userWriteRepository,
+        IRefreshSessionWriteRepository refreshSessionWriteRepository,
             IRefreshSessionReadRepository refreshSessionReadRepository)
         {
             _logger = logger;
             _authOptions = authOptions.Value;
             _tokenService = tokenService;
             _userReadRepository = userReadRepository;
+            _userWriteRepository = userWriteRepository;
             _refreshSessionWriteRepository = refreshSessionWriteRepository;
             _refreshSessionReadRepository = refreshSessionReadRepository;
         }
 
-        public async Task<TokenAggregateDto> LogIn(LoginRequestModel model)
+        public async Task<TokenAggregateDto> Register(RegisterRequestModel model)
         {
-            var user = await _userReadRepository.GetUserWithSessions(model.Email);
+            var alreadyExistingUser = await _userReadRepository.GetUserWithSessions(model.Email);
 
-            if (user == null)
+            if (alreadyExistingUser != null)
             {
                 return null;
             }
 
-            var isVerified = BCrypt.Net.BCrypt.Verify(model.Password + _authOptions.Pepper, user.Password);
-
-            if (isVerified == false)
+            var user = await CreateUser(model);
+            if(user == null)
             {
                 return null;
             }
 
             var newSession = HandleRefreshSessions(user, model);
-            var tokens = new TokenAggregateDto();
+            user.RefreshSessions = new List<RefreshSession>
+            {
+                newSession
+            };
+
+            var tokensModel = new TokenAggregateDto();
 
             try
             {
-                tokens.AccessToken = _tokenService.GenerateAccessToken(user.Id);
-                tokens.AccessTokenDuration = _authOptions.AccessTokenDuration;
-                tokens.RefreshToken = newSession.RefreshToken;
-                tokens.RefreshTokenDuration = _authOptions.RefreshTokenDuration;
-
-                _refreshSessionWriteRepository.Add(newSession);
-                await _refreshSessionWriteRepository.SaveChangesAsync();
+                InitTokens(user, tokensModel, newSession);
+                await SaveRefreshSession(newSession);
             }
             catch (Exception ex)
             {
@@ -69,7 +71,40 @@ namespace ToDo_List.Models.Services.Auth
                 return null;
             }
 
-            return tokens;
+            return tokensModel;
+        }
+
+        public async Task<TokenAggregateDto> LogIn(AuthRequestModel model)
+        {
+            var user = await _userReadRepository.GetUserWithSessions(model.Email);
+            if (user == null)
+            {
+                return null;
+            }
+
+            var isVerified = BCrypt.Net.BCrypt.Verify(model.Password + _authOptions.Pepper, user.Password);
+            if (isVerified == false)
+            {
+                return null;
+            }
+
+            var newSession = HandleRefreshSessions(user, model);
+
+            var tokensModel = new TokenAggregateDto();
+
+            try
+            {
+                InitTokens(user, tokensModel, newSession);
+                await SaveRefreshSession(newSession);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+
+                return null;
+            }
+
+            return tokensModel;
         }
 
         public async Task<bool> LogOut(string refreshToken)
@@ -138,11 +173,39 @@ namespace ToDo_List.Models.Services.Auth
             return tokens;
         }
 
-
-
-        private RefreshSession HandleRefreshSessions(User user, LoginRequestModel model)
+        private async Task<User> CreateUser(RegisterRequestModel model)
         {
-            if (user.RefreshSessions.Any())
+            var newUser =  new User()
+            {
+                Id = Guid.NewGuid(),
+                Name = model.Name,
+                Email = model.Email,
+                Password = BCrypt.Net.BCrypt.HashPassword(model.Password + _authOptions.Pepper)
+            };
+
+            _userWriteRepository.Add(newUser);
+            var isUserAdded = await _userWriteRepository.SaveChangesAsync();
+
+            if (!isUserAdded)
+            {
+                return null;
+            }
+
+            return newUser;
+        }
+
+        private void InitTokens(User user, TokenAggregateDto tokensModel, RefreshSession newSession)
+        {
+            tokensModel.AccessToken = _tokenService.GenerateAccessToken(user.Id);
+            tokensModel.AccessTokenDuration = _authOptions.AccessTokenDuration;
+            tokensModel.RefreshToken = newSession.RefreshToken;
+            tokensModel.RefreshTokenDuration = _authOptions.RefreshTokenDuration;
+        }
+
+        private RefreshSession HandleRefreshSessions(User user, AuthRequestModel model)
+        {
+            var userHasRefreshSessions = user.RefreshSessions?.Any();
+            if (userHasRefreshSessions == true)
             {
                 var currentSession = user.RefreshSessions.Where(x => x.FingerPrint == model.FingerPrint && x.UserAgent == model.UserAgent).FirstOrDefault();
                 if (currentSession != null)
@@ -169,6 +232,12 @@ namespace ToDo_List.Models.Services.Auth
             };
 
             return newSession;
+        }
+
+        private async Task SaveRefreshSession(RefreshSession newSession)
+        {
+            _refreshSessionWriteRepository.Add(newSession);
+            await _refreshSessionWriteRepository.SaveChangesAsync();
         }
     }
 }

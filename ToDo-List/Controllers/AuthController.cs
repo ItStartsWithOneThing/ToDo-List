@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ToDo_List.Controllers.Filters;
 using ToDo_List.Models.API.Requests;
 using ToDo_List.Models.API.Responses;
 using ToDo_List.Models.Services.Auth;
@@ -25,18 +26,56 @@ namespace ToDo_List.Controllers
         }
 
         /// <summary>
-        /// Login to the system. This method will send back the access-token.
-        /// Refresh-token will be attached to http-only cookies automatically.
+        /// Creates a new user.
+        /// Refresh and access tokens will be attached to http-only cookies automatically.
         /// </summary>
-        /// <response code="200">access-token</response>
+        /// <response code="200"></response>
         /// <response code="400">Request validation error</response>
         /// <response code="401"></response>
-        [Authorize(Policy = "UnauthenticatedPolicy")]
-        [HttpPost("login")]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [AllowAnonymous]
+        [ForbidAccessToAPIForAuthorizedUserFilter]
+        [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> LogIn([FromBody] LoginRequestModel request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequestModel request)
+        {
+            request.UserAgent = HttpContext.Request.Headers["User-Agent"];
+            var result = await _authService.Register(request);
+
+            if (result == null)
+            {
+                _logger.LogInformation($"Authorization failure with email: {request.Email}");
+                return BadRequest(request);
+            }
+
+            Response.Cookies.Append("RefreshToken", result.RefreshToken.ToString(), new CookieOptions
+            {
+                MaxAge = result.RefreshTokenDuration
+            });
+
+            Response.Cookies.Append("AccessToken", result.AccessToken, new CookieOptions
+            {
+                MaxAge = result.AccessTokenDuration
+            });
+
+            _logger.LogInformation($"User with email: {request.Email} has been authorized");
+            return Ok();
+        }
+
+        /// <summary>
+        /// Login to the system. This method will add access and refresh tokens in cookies.
+        /// </summary>
+        /// <response code="200"></response>
+        /// <response code="400">Request validation error</response>
+        /// <response code="401"></response>
+        [AllowAnonymous]
+        [ForbidAccessToAPIForAuthorizedUserFilter]
+        [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> LogIn([FromBody] AuthRequestModel request)
         {
             request.UserAgent = HttpContext.Request.Headers["User-Agent"];
             var result = await _authService.LogIn(request);
@@ -58,7 +97,6 @@ namespace ToDo_List.Controllers
             });
 
             _logger.LogInformation($"User with email: {request.Email} has been authorized");
-
             return Ok();
         }
 
@@ -67,7 +105,7 @@ namespace ToDo_List.Controllers
         /// </summary>
         /// <response code="200"></response>
         /// <response code="400"></response>
-        [HttpPost("logout")]
+        [HttpGet("logout")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> LogOut()

@@ -193,7 +193,7 @@ body {
 .add-container {
     display: flex;
     justify-content: space-between;
-    gap: 15px;
+    gap: 5px;
     align-items: center;
 }
 
@@ -201,13 +201,31 @@ body {
     border-radius: 4px;
     border: none;
     padding: 6px;
-    background-color:white;
+    background-color: white;
 }
 
 .add-button:hover {
-    cursor:pointer;
+    cursor: pointer;
     background-color: #efefef;
 }
+
+.logout-button {
+    padding: 6px;
+    border-radius: 4px;
+    margin-left: 100px;
+    background-color: white;
+    border: none;
+}
+
+.logout-button:hover {
+    cursor: pointer;
+    background-color: #efefef;
+}
+
+.logout-img {
+    width: 24px;
+}
+
 
 .card-modal {
     display: none;

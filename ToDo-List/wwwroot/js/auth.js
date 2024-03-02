@@ -1,2 +1,0 @@
-﻿
-let accessToken = "123";

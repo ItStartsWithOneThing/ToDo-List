@@ -1,6 +1,6 @@
 ﻿
-import { resizeTextarea, getPriorityText, showBGColors, showEditedTime, closeModalWindow, getLocaldateTimeString } from './common.js';
-import { allCards, rootAddress, showAllCards } from './site.js';
+import { resizeTextarea, getPriorityText, showBGColors, showEditedTime, closeModalWindow, getLocaldateTimeString, rootAddress } from './common.js';
+import { allCards, showAllCards } from './site.js';
 
 function handleShowEditCardModal(event) {
     let targetCardEl = event.currentTarget;
@@ -154,7 +154,7 @@ function toggleCardStatus(event) {
     debouncedUpdateCards();
 }
 
-const debouncedUpdateCards = _.debounce(updateCards, 1500);
+const debouncedUpdateCards = _.debounce(updateCards, 1000);
 
 function updateCards() {
     let targetCards = allCards.filter(x => x.hasUnsavedChanges === true);

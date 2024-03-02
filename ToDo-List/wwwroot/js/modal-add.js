@@ -1,6 +1,6 @@
 ﻿
-import { resizeTextarea, getPriorityText, showBGColors, closeModalWindow } from './common.js';
-import { allCards, rootAddress, showAllCards } from './site.js';
+import { resizeTextarea, getPriorityText, showBGColors, closeModalWindow, rootAddress } from './common.js';
+import { allCards, showAllCards } from './site.js';
 
 const handleShowAddNewCardModal = () => {
     const cardModal = document.querySelector(".card-modal");

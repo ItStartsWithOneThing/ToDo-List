@@ -117,4 +117,26 @@ function changeCurrentLocation(url) {
     window.location.assign(url);
 }
 
-export { resizeTextarea, getPriorityText, showBGColors, showEditedTime, closeModalWindow, getLocaldateTimeString, rootAddress, authenticate };
+async function refreshTokens(fingerPrint) {
+    let requestOptions = {
+        method: 'POST',
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify(fingerPrint)
+    };
+
+    try {
+        const response = await fetch(`${rootAddress}/api/auth/refresh-tokens`, requestOptions);
+
+        if (response.status === 200) {
+            return true;
+        }
+
+        throw new Error('Something went wrong while refreshing tokens');
+    }
+    catch (error) {
+        console.log(error);
+        return false;
+    }
+}
+
+export { resizeTextarea, getPriorityText, showBGColors, showEditedTime, closeModalWindow, getLocaldateTimeString, rootAddress, authenticate, refreshTokens };

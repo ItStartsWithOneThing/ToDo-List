@@ -1,10 +1,14 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using ToDo_List.Controllers.Extensions;
+using ToDo_List.Controllers.Filters;
 using ToDo_List.Models.Services;
 
 namespace ToDo_List.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -18,12 +22,12 @@ namespace ToDo_List.Controllers
             _taskCardService = taskCardService;
         }
 
-
         public async Task<IActionResult> Index()
         {
-            var allCards = await _taskCardService.GetAllTaskCards();
+            var userId = HttpContext.GetUserId();
+            var allCards = await _taskCardService.GetAllTaskCards(userId);
 
-            if(allCards == null)
+            if(allCards == null || allCards.Any() == false)
             {
                 return View();
             }
@@ -34,6 +38,20 @@ namespace ToDo_List.Controllers
             };
             ViewBag.AllCards = JsonSerializer.Serialize(allCards, options);
 
+            return View();
+        }
+
+        [AllowAnonymous]
+        [RedirectAuthorizedUsersFilter]
+        public async Task<IActionResult> LogIn()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        [RedirectAuthorizedUsersFilter]
+        public async Task<IActionResult> Register()
+        {
             return View();
         }
     }

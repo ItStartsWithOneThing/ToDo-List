@@ -1,8 +1,8 @@
 ﻿
 using AutoMapper;
-using ToDo_List.Controllers.Requests;
+using ToDo_List.Models.API.Requests;
 using ToDo_List.Models.DataBase.Entities;
-using ToDo_List.Models.DataBase.Repositories;
+using ToDo_List.Models.DataBase.Repositories.TaskCardRepositories;
 using ToDo_List.Models.DTO;
 
 namespace ToDo_List.Models.Services
@@ -10,27 +10,27 @@ namespace ToDo_List.Models.Services
     public class TaskCardService : ITaskCardService
     {
         private readonly ILogger<TaskCardService> _logger;
-        private readonly IReadRepository _readRepo;
-        private readonly IWriteRepository _writeRepo;
+        private readonly ITaskCardReadRepository _taskCardReadRepo;
+        private readonly ITaskCardWriteRepository _taskCardWriteRepo;
         private readonly IMapper _mapper;
 
         public TaskCardService(
             ILogger<TaskCardService> logger,
-            IReadRepository readRepo,
-            IWriteRepository writeRepo,
+            ITaskCardReadRepository taskCardReadRepo,
+            ITaskCardWriteRepository taskCardWriteRepo,
             IMapper mapper)
         {
             _logger = logger;
-            _readRepo = readRepo;
-            _writeRepo = writeRepo;
+            _taskCardReadRepo = taskCardReadRepo;
+            _taskCardWriteRepo = taskCardWriteRepo;
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<TaskCardDto>> GetAllTaskCards()
+        public async Task<IEnumerable<TaskCardDto>> GetAllTaskCards(Guid userId)
         {
             try
             {
-                var result = await _readRepo.GetAll();
+                var result = await _taskCardReadRepo.GetAllUserCards(userId);
                 return _mapper.Map<IEnumerable<TaskCardDto>>(result);
             }
             catch (Exception ex)
@@ -41,15 +41,17 @@ namespace ToDo_List.Models.Services
             
         }
 
-        public async Task<TaskCardDto> AddTaskCard(AddNewCardRequestModel taskCardRequest)
+        public async Task<TaskCardDto> AddTaskCard(AddNewCardRequestModel taskCardRequest, Guid userId)
         {
             var newCard = _mapper.Map<TaskCard>(taskCardRequest);
             newCard.Id = Guid.NewGuid();
+            newCard.UserId = userId;
             newCard.EditedDate = DateTime.Now;
 
             try
             {
-                var isCardAdded = await _writeRepo.Add(newCard);
+                _taskCardWriteRepo.Add(newCard);
+                var isCardAdded = await _taskCardWriteRepo.SaveChangesAsync();
 
                 if (isCardAdded)
                 {
@@ -67,12 +69,18 @@ namespace ToDo_List.Models.Services
             }
         }
 
-        public async Task<bool> UpdateTaskCards(IEnumerable<TaskCardDto> cards)
+        public async Task<bool> UpdateTaskCards(IEnumerable<TaskCardDto> cards, Guid userId)
         {
             try
             {
-                var targetCars = _mapper.Map<IEnumerable<TaskCard>>(cards);
-                var result = await _writeRepo.Update(targetCars);
+                var targetCards = _mapper.Map<IEnumerable<TaskCard>>(cards);
+                foreach (var targetCard in targetCards)
+                {
+                    targetCard.UserId = userId;
+                }
+
+                var result = await _taskCardWriteRepo.UpdateRange(targetCards);
+
                 if(result < cards.Count())
                 {
                     return false;
@@ -87,11 +95,18 @@ namespace ToDo_List.Models.Services
             }
         }
 
-        public async Task<bool> DeleteTaskCard(Guid id)
+        public async Task<bool> DeleteTaskCard(Guid id, Guid userId)
         {
             try
             {
-                return await _writeRepo.Delete(id);
+                var taskCardToDelete = await _taskCardReadRepo.GetByIdAndUserId(id, userId);
+                if(taskCardToDelete != null)
+                {
+                    _taskCardWriteRepo.Delete(taskCardToDelete);
+                    return await _taskCardWriteRepo.SaveChangesAsync();
+                }
+
+                return false;
             }
             catch (Exception ex)
             {

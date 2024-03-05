@@ -1,39 +1,38 @@
 
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using System.Net;
 using System.Reflection;
+using ToDo_List.Controllers.Extensions;
 using ToDo_List.Controllers.Filters;
+using ToDo_List.Controllers.Middlewares;
 using ToDo_List.Models.DataBase;
-using ToDo_List.Models.DataBase.Repositories;
 using ToDo_List.Models.MappingProfiles;
-using ToDo_List.Models.Services;
+using ToDo_List.Models.Services.Auth.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<AuthOptionsModel>(options =>
+    builder.Configuration.GetSection("AuthOptions").Bind(options));
+
+builder.Services.AddAuthorizationExtension();
+builder.Services.AddJwtAuthenticationExtension(builder.Configuration);
 
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNameCaseInsensitive = true)
     .AddMvcOptions(options =>
     {
-        options.Filters.Add<ValidatonActionFilter>();
+        options.Filters.Add<ValidationActionFilter>();
     });
 
-builder.Services.AddCors(options => options.AddPolicy("MyCORS", builder => builder
-                    .WithOrigins("https://localhost:7274")
+builder.Services.AddCors(options => options.AddPolicy("MyCORS", policyBuilder => policyBuilder
+                    .WithOrigins("https://localhost:7271")
                     .AllowAnyHeader()
                     .AllowAnyMethod())
                );
 
 
-builder.Services.AddSwaggerGen(c => {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ToDo-List", Version = "v1" });
-
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    c.IncludeXmlComments(xmlPath);
-});
-
-string connection = builder.Configuration.GetConnectionString("IdentityConnection");
-builder.Services.AddDbContext<ToDoDbContext>(options => options.UseNpgsql(connection));
+builder.Services.AddSwaggerExtension();
 
 var assemblies = new[]
 {
@@ -41,10 +40,12 @@ var assemblies = new[]
 };
 builder.Services.AddAutoMapper(assemblies);
 
-builder.Services.AddScoped<IReadRepository, ReadRepository>();
-builder.Services.AddScoped<IWriteRepository, WriteRepository>();
+string connection = builder.Configuration.GetConnectionString("IdentityConnection");
+builder.Services.AddDbContext<ToDoDbContext>(options => options.UseNpgsql(connection));
 
-builder.Services.AddScoped<ITaskCardService, TaskCardService>();
+builder.Services.AddRepositoriesExtension();
+
+builder.Services.AddBusinessLogicServicesExtension();
 
 var app = builder.Build();
 
@@ -59,17 +60,39 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("MyCORS");
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.Strict,
+    HttpOnly = HttpOnlyPolicy.Always,
+    Secure = CookieSecurePolicy.Always
+});
 
 app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseCors("MyCORS");
+
+app.UseMiddleware<TokenHandlerMiddleware>();
+
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+
+    var isUnauthorized = response.StatusCode == (int)HttpStatusCode.Unauthorized;
+    var isNotAPIRoute = !context.HttpContext.Request.Path.ToString().Contains("/api/");
+
+    if (isUnauthorized && isNotAPIRoute)
+    {
+        response.Redirect("/Home/Login");
+    }
+});
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default-home",
+    name: "default",
     pattern: "{controller=Home}/{action=Index}");
-
 
 app.Run();

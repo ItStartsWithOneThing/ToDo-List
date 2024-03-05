@@ -1,13 +1,16 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ToDo_List.Controllers.Requests;
-using ToDo_List.Controllers.Responses;
+using ToDo_List.Controllers.Extensions;
+using ToDo_List.Models.API.Requests;
+using ToDo_List.Models.API.Responses;
 using ToDo_List.Models.DataBase.Entities;
 using ToDo_List.Models.DTO;
 using ToDo_List.Models.Services;
 
 namespace ToDo_List.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
@@ -36,7 +39,8 @@ namespace ToDo_List.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddCard([FromBody] AddNewCardRequestModel request)
         {
-            var result = await _taskCardService.AddTaskCard(request);
+            var userId = HttpContext.GetUserId();
+            var result = await _taskCardService.AddTaskCard(request, userId);
             return result != null ? Ok(result) : BadRequest("Failed to add new card");
         }
 
@@ -51,7 +55,8 @@ namespace ToDo_List.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateCards([FromBody] IEnumerable<TaskCardDto> request)
         {
-            var result = await _taskCardService.UpdateTaskCards(request);
+            var userId = HttpContext.GetUserId();
+            var result = await _taskCardService.UpdateTaskCards(request, userId);
             return result == true ? Ok($"Updated {request.Count()} cards") : BadRequest($"Failed to update {request.Count()} cards");
         }
 
@@ -66,7 +71,8 @@ namespace ToDo_List.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteCard([FromQuery] Guid id)
         {
-            var result = await _taskCardService.DeleteTaskCard(id);
+            var userId = HttpContext.GetUserId();
+            var result = await _taskCardService.DeleteTaskCard(id, userId);
             return result == true ? Ok($"Deleted card with id: {id}") : BadRequest($"Failed to delete card with id: {id}");
         }
     }

@@ -1,7 +1,7 @@
 ﻿
 using ToDo_List.Models.Enums;
 
-namespace ToDo_List.Controllers.Requests
+namespace ToDo_List.Models.API.Requests
 {
     public class AddNewCardRequestModel
     {

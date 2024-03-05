@@ -1,4 +1,6 @@
 ﻿
+const rootAddress = "https://localhost:7271";
+
 //Autoresizing text area while entering text
 const resizeTextarea = (event) => {
     let currentEl = event.currentTarget;
@@ -90,4 +92,51 @@ const getLocaldateTimeString = (date) => {
     return dateTime;
 }
 
-export { resizeTextarea, getPriorityText, showBGColors, showEditedTime, closeModalWindow, getLocaldateTimeString };
+
+function authenticate(url, request, redirectUrl) {
+    let requestOptions = {
+        method: 'POST',
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify(request)
+    };
+
+    fetch(url, requestOptions)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Something went wrong. Try again later.');
+            }
+
+            changeCurrentLocation(redirectUrl);
+        })
+        .catch(error => {
+            alert(error);
+        });
+}
+
+function changeCurrentLocation(url) {
+    window.location.assign(url);
+}
+
+async function refreshTokens(fingerPrint) {
+    let requestOptions = {
+        method: 'POST',
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify(fingerPrint)
+    };
+
+    try {
+        const response = await fetch(`${rootAddress}/api/auth/refresh-tokens`, requestOptions);
+
+        if (response.status === 200) {
+            return true;
+        }
+
+        throw new Error('Something went wrong while refreshing tokens');
+    }
+    catch (error) {
+        console.log(error);
+        return false;
+    }
+}
+
+export { resizeTextarea, getPriorityText, showBGColors, showEditedTime, closeModalWindow, getLocaldateTimeString, rootAddress, authenticate, refreshTokens };

@@ -22,6 +22,39 @@ namespace ToDo_List.Models.DataBase.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ToDo_List.Models.DataBase.Entities.RefreshSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("ExpiresIn")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("FingerPrint")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("RefreshToken")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserAgent")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshSessions");
+                });
+
             modelBuilder.Entity("ToDo_List.Models.DataBase.Entities.TaskCard", b =>
                 {
                     b.Property<Guid>("Id")
@@ -47,9 +80,121 @@ namespace ToDo_List.Models.DataBase.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("TaskCards");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("c477693d-5d2e-4f69-bf39-3c06b4b3f69a"),
+                            BackgroundColor = "#bde0fe",
+                            Completed = false,
+                            EditedDate = new DateTime(2024, 2, 5, 14, 30, 0, 0, DateTimeKind.Unspecified),
+                            Priority = 2,
+                            Text = "Order some pizza",
+                            Title = "Dinner",
+                            UserId = new Guid("ab4360f5-c721-4119-9908-6bf1a50aee08")
+                        },
+                        new
+                        {
+                            Id = new Guid("a92cb130-979f-465d-9019-6f64a524eb45"),
+                            BackgroundColor = "#ffb5a7",
+                            Completed = false,
+                            EditedDate = new DateTime(2024, 2, 10, 9, 17, 0, 0, DateTimeKind.Unspecified),
+                            Priority = 3,
+                            Text = "Pay rent for electricity and water. Also send electricity meter readings.",
+                            Title = "Rent",
+                            UserId = new Guid("ab4360f5-c721-4119-9908-6bf1a50aee08")
+                        },
+                        new
+                        {
+                            Id = new Guid("aa09174a-866d-4c1f-8253-d29b02c92984"),
+                            BackgroundColor = "white",
+                            Completed = false,
+                            EditedDate = new DateTime(2024, 1, 2, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            Priority = 1,
+                            Text = "Movies that I should watch this winter: Harry Potter (all parts), Lord of the ring + Hobbit (all parts), ",
+                            Title = "Movies",
+                            UserId = new Guid("ab4360f5-c721-4119-9908-6bf1a50aee08")
+                        },
+                        new
+                        {
+                            Id = new Guid("f577f301-68f6-46a2-9a0c-09713d46812c"),
+                            BackgroundColor = "#d0f4de",
+                            Completed = false,
+                            EditedDate = new DateTime(2024, 2, 5, 14, 30, 0, 0, DateTimeKind.Unspecified),
+                            Priority = 2,
+                            Text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+                            Title = "Basic text for filling",
+                            UserId = new Guid("ab4360f5-c721-4119-9908-6bf1a50aee08")
+                        });
+                });
+
+            modelBuilder.Entity("ToDo_List.Models.DataBase.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ab4360f5-c721-4119-9908-6bf1a50aee08"),
+                            Email = "example@test.com",
+                            Name = "User",
+                            Password = "$2a$11$RxAPh6vaKFA8SEmThlCaPuUY2GHd/gpa9eAvLn87E1YLPj6bXuii2"
+                        });
+                });
+
+            modelBuilder.Entity("ToDo_List.Models.DataBase.Entities.RefreshSession", b =>
+                {
+                    b.HasOne("ToDo_List.Models.DataBase.Entities.User", "User")
+                        .WithMany("RefreshSessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ToDo_List.Models.DataBase.Entities.TaskCard", b =>
+                {
+                    b.HasOne("ToDo_List.Models.DataBase.Entities.User", "User")
+                        .WithMany("TaskCards")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ToDo_List.Models.DataBase.Entities.User", b =>
+                {
+                    b.Navigation("RefreshSessions");
+
+                    b.Navigation("TaskCards");
                 });
 #pragma warning restore 612, 618
         }

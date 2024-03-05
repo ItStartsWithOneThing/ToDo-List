@@ -15,6 +15,11 @@ namespace ToDo_List.Models.DataBase.Configuration
             builder.Property(x => x.EditedDate)
                     .HasColumnType("timestamp without time zone");
 
+            builder.HasOne(x => x.User)
+                .WithMany(x => x.TaskCards)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.HasData(TaskCardSeedData.GetData());
         }
     }

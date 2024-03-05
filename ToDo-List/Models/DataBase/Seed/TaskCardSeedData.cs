@@ -21,6 +21,7 @@ namespace ToDo_List.Models.DataBase.Seed
                 new ()
                 {
                     Id = Guid.NewGuid(),
+                    UserId = Guid.Parse("ab4360f5-c721-4119-9908-6bf1a50aee08"),
                     Title = "Dinner",
                     Text = "Order some pizza",
                     EditedDate = DateTime.Parse("2024-02-05 14:30:00"),
@@ -31,6 +32,7 @@ namespace ToDo_List.Models.DataBase.Seed
                 new ()
                 {
                     Id = Guid.NewGuid(),
+                    UserId = Guid.Parse("ab4360f5-c721-4119-9908-6bf1a50aee08"),
                     Title = "Rent",
                     Text = "Pay rent for electricity and water. Also send electricity meter readings.",
                     EditedDate = DateTime.Parse("2024-02-10 09:17:00"),
@@ -41,6 +43,7 @@ namespace ToDo_List.Models.DataBase.Seed
                 new ()
                 {
                     Id = Guid.NewGuid(),
+                    UserId = Guid.Parse("ab4360f5-c721-4119-9908-6bf1a50aee08"),
                     Title = "Movies",
                     Text = "Movies that I should watch this winter: Harry Potter (all parts), Lord of the ring + Hobbit (all parts), ",
                     EditedDate = DateTime.Parse("2024-01-02 10:30:00"),
@@ -51,6 +54,7 @@ namespace ToDo_List.Models.DataBase.Seed
                 new ()
                 {
                     Id = Guid.NewGuid(),
+                    UserId = Guid.Parse("ab4360f5-c721-4119-9908-6bf1a50aee08"),
                     Title = "Basic text for filling",
                     Text = basicText,
                     EditedDate = DateTime.Parse("2024-02-05 14:30:00"),

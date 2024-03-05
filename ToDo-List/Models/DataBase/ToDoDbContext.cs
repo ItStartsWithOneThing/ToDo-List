@@ -12,11 +12,12 @@ namespace ToDo_List.Models.DataBase
         }
 
         public DbSet<TaskCard> TaskCards { get; set; }
+        public DbSet<RefreshSession> RefreshSessions { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ToDoDbContext).Assembly);
-
         }
     }
 }

@@ -1,6 +1,13 @@
 ﻿
-import { resizeTextarea, getPriorityText, showBGColors, showEditedTime, closeModalWindow, getLocaldateTimeString } from './common.js';
-import { allCards, rootAddress, showAllCards } from './site.js';
+import { resizeTextarea, getPriorityText, showBGColors, showEditedTime, closeModalWindow, getLocaldateTimeString, rootAddress, refreshTokens } from './common.js';
+import { allCards, showAllCards } from './site.js';
+
+let fingerprint = "";
+
+import('https://openfpcdn.io/fingerprintjs/v4')
+    .then(FingerprintJS => FingerprintJS.load())
+    .then(fp => fp.get())
+    .then(result => fingerprint = result.visitorId);
 
 function handleShowEditCardModal(event) {
     let targetCardEl = event.currentTarget;
@@ -107,7 +114,7 @@ function handleShowEditCardModal(event) {
 
     //Delete button
     const deleteButton = document.querySelector(".new-card-form_btn-delete");
-    deleteButton.addEventListener('click', () => handleDeleteCard(card));
+    deleteButton.addEventListener('click', async () => await handleDeleteCard(card));
     deleteButton.addEventListener('click', () => closeModalWindow());
 
 
@@ -154,9 +161,14 @@ function toggleCardStatus(event) {
     debouncedUpdateCards();
 }
 
-const debouncedUpdateCards = _.debounce(updateCards, 1500);
+const updateCardsAsyncWrapper = async () => {
+    await updateCards(false);
+};
 
-function updateCards() {
+const debouncedUpdateCards = _.debounce(updateCardsAsyncWrapper, 1000);
+
+// Parameter isSecondCall is made for preventing endless recursive loop
+async function updateCards(isSecondCall) {
     let targetCards = allCards.filter(x => x.hasUnsavedChanges === true);
 
     let cardsToSend = targetCards.map(x => new Object({ ...x }));
@@ -168,58 +180,90 @@ function updateCards() {
         body: JSON.stringify(cardsToSend)
     };
 
-    fetch(`${rootAddress}/api/Task/update-cards`, requestOptions)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Something went wrong');
+    try {
+        let response = await fetch(`${rootAddress}/api/Task/update-cards`, requestOptions);
+        if (response.status === 401) {
+            if (isSecondCall === true) {
+                throw new Error('Your current session has beeen expired');
             }
-            targetCards.forEach(x => x.hasUnsavedChanges = false);
-            showAllCards(allCards);
-        })
-        .catch(error => {
-            alert(`${error}. Try to edit later`);
-            showAllCards(allCards);
-        });
+
+            let tokensAreRefreshed = await refreshTokens(fingerprint);
+
+            if (tokensAreRefreshed) {
+                await updateCards(true);
+                return true;
+            } else {
+                throw new Error('Your current session has beeen expired');
+            }
+        }
+
+        if (response.status !== 200) {
+            throw new Error('Something went wrong');
+        }
+
+        targetCards.forEach(x => x.hasUnsavedChanges = false);
+        showAllCards(allCards);
+    }
+    catch (error) {
+        alert(`${error}. Try to edit later`);
+        window.location.assign(rootAddress);
+    }
 }
 
-function handleDeleteCard(card) {
+async function handleDeleteCard(card) {
     let shouldDleteCard = confirm("Are You shure You want to delete this note ?");
 
     if (shouldDleteCard) {
         let indexToRemove = allCards.findIndex(x => x.id === card.id);
-        let title = card.title;
 
         if (indexToRemove !== -1) {
-            let promiseResult = deleteCard(card.id);
-            promiseResult
-                .then(data => {
-                    allCards.splice(indexToRemove, 1);
-                    showAllCards(allCards);
-                    alert(`Successfully deleted ${title}`);
-                })
-                .catch(error => {
-                    alert(`Cannot deleted note ${title}. ${error.message}`);
-                })
+            let isDeleted = await deleteCard(card.id, false);
+            if (isDeleted) {
+                allCards.splice(indexToRemove, 1);
+                showAllCards(allCards);
+                alert(`Successfully deleted ${card.title}`);
+            } else {
+                alert(`Cannot deleted note ${card.title}. ${error.message}`);
+            }
         }
     }
 }
 
-function deleteCard(id) {
+// Parameter isSecondCall is made for preventing endless recursive loop
+async function deleteCard(id, isSecondCall) {
     let requestOptions = {
         method: 'DELETE',
         headers: { "Accept": "application/json", "Content-Type": "application/json" }
     };
 
-    return fetch(`${rootAddress}/api/Task/delete-card/?id=${id}`, requestOptions)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Something went wrong');
+    try {
+        let response = await fetch(`${rootAddress}/api/Task/delete-card/?id=${id}`, requestOptions);
+
+        if (response.status === 401) {
+            if (isSecondCall === true) {
+                return false;
             }
-            return response.json();
-        })
-        .catch(error => {
-            throw error;
-        });
+
+            let tokensAreRefreshed = await refreshTokens(fingerprint);
+
+            if (tokensAreRefreshed) {
+                return await deleteCard(id, true);
+            } else {
+                alert('Your current session has beeen expired');
+                window.location.assign(rootAddress);
+            }
+        }
+
+        if (response.status !== 200) {
+            throw new Error('Something went wrong');
+        }
+
+        return true;
+    }
+    catch (error) {
+        console.log(error);
+        return false;
+    }
 }
 
 

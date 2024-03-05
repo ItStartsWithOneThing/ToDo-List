@@ -2,9 +2,7 @@
 
 import { handleShowEditCardModal, toggleCardStatus } from './modal-edit.js';
 import { handleShowAddNewCardModal } from './modal-add.js';
-import { getPriorityText, closeModalWindow } from './common.js';
-
-const rootAddress = "https://localhost:7271";
+import { rootAddress, getPriorityText, closeModalWindow } from './common.js';
 
 let allCardsEl = document.getElementById("allCards");
 let allCards = JSON.parse(allCardsEl.value);
@@ -57,6 +55,9 @@ toggleFilterElements.forEach(element => {
 const addBtn = document.querySelector(".add-button");
 addBtn.addEventListener('click', () => handleShowAddNewCardModal());
 
+
+const logoutBtn = document.querySelector(".logout-button");
+logoutBtn.addEventListener('click', () => handleLogout());
 
 //Closing modal window by tapping "Escape" buton on keyboard
 window.addEventListener("keydown", (e) => {
@@ -188,6 +189,26 @@ function createNewCard(card) {
     return cardEl;
 }
 
+function handleLogout() {
+    let shouldLogout = confirm("Are you shure you want to logout?");
+
+    if(shouldLogout) {
+        fetch(rootAddress + "/api/auth/logout", {
+            method: 'GET',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Eror! Try again later`);
+                }
+
+                window.location.assign(rootAddress);
+            })
+            .catch(error => {
+                alert(error)
+            });
+    }
+}
 
 
-export { allCards, rootAddress, showAllCards };
+
+export { allCards, showAllCards };

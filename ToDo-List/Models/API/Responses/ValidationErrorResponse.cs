@@ -1,4 +1,4 @@
-﻿namespace ToDo_List.Controllers.Responses
+﻿namespace ToDo_List.Models.API.Responses
 {
     public class ValidationErrorResponse
     {

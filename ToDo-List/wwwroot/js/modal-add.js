@@ -1,6 +1,13 @@
 ﻿
-import { resizeTextarea, getPriorityText, showBGColors, closeModalWindow } from './common.js';
-import { allCards, rootAddress, showAllCards } from './site.js';
+import { resizeTextarea, getPriorityText, showBGColors, closeModalWindow, rootAddress, refreshTokens } from './common.js';
+import { allCards, showAllCards } from './site.js';
+
+let fingerprint = "";
+
+import('https://openfpcdn.io/fingerprintjs/v4')
+    .then(FingerprintJS => FingerprintJS.load())
+    .then(fp => fp.get())
+    .then(result => fingerprint = result.visitorId);
 
 const handleShowAddNewCardModal = () => {
     const cardModal = document.querySelector(".card-modal");
@@ -10,7 +17,7 @@ const handleShowAddNewCardModal = () => {
 	<div class="modal-card-form-container">
         <div class="new-card-form_background">
             <form id="new-card-form-id" class="new-card-form">
-               <textarea class="input-title" placeholder="Enter card name"/></textarea>
+               <textarea class="input-title" placeholder="Enter card name"></textarea>
                <textarea class="input-text" placeholder="Enter text"></textarea>
             </form>
             <div class="new-card-form-navigation">
@@ -54,14 +61,17 @@ const handleShowAddNewCardModal = () => {
 
     //Confirm button (sending new card to the server)
     const confirmBtn = document.querySelector('.new-card-form_btn-confirm');
-    confirmBtn.addEventListener('click', () => sendNewCard());
+    confirmBtn.addEventListener('click', async () => {
+        await sendNewCard(false);
+    });
 
     //Cancel button (closing the modal window)
     const cancelBtn = document.querySelector('.new-card-form_btn-close');
     cancelBtn.addEventListener('click', () => closeModalWindow());
 };
 
-function sendNewCard() {
+// Parameter isSecondCall is made for preventing endless recursive loop
+async function sendNewCard(isSecondCall) {
     let newTaskCard = {
         title: document.querySelector(".input-title").value,
         text: document.querySelector(".input-text").value,
@@ -75,27 +85,41 @@ function sendNewCard() {
         body: JSON.stringify(newTaskCard)
     };
 
+    try {
+        let response = await fetch(`${rootAddress}/api/Task/add-card`, requestOptions);
 
-    fetch(`${rootAddress}/api/Task/add-card`, requestOptions)
-        .then(response => {
-            if (response.status === 400) {
-                throw new Error('Something went wrong');
+        if (response.status === 400) {
+            throw new Error('Something went wrong');
+        }
+
+        if (response.status === 401) {
+            if (isSecondCall === true) {
+                throw new Error('Your current session has beeen expired');
             }
-            return response.json();
-        })
-        .then(response => {
-            response.editedDate = new Date(response.editedDate);
 
-            allCards.push(response);
-            showAllCards(allCards);
+            let tokensAreRefreshed = await refreshTokens(fingerprint);
 
-            alert("Congrats! Now you have a new task");
-            closeModalWindow();
-        })
-        .catch(error => {
-            alert(`${error}. Try to add task again`);
-        });
+            if (tokensAreRefreshed) {
+                await sendNewCard(true);
+                return true;
+            } else {
+                throw new Error('Your current session has beeen expired');
+            }
+        }
+        let responseJson = await response.json();
+
+        responseJson.editedDate = new Date(response.editedDate);
+
+        allCards.push(responseJson);
+        showAllCards(allCards);
+
+        alert("Congrats! Now you have a new task");
+        closeModalWindow();
+    }
+    catch (error) {
+        alert(`${error}. Try to add task again`);
+        window.location.assign(rootAddress);
+    }
 }
-
 
 export { handleShowAddNewCardModal };

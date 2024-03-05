@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ToDo_List.Controllers.Filters
 {
-    public class ForbidAccessToAPIForAuthorizedUserFilter : Attribute, IActionFilter
+    public class ForbidAccessToAuthAPIForAuthorizedUserFilter : Attribute, IActionFilter
     {
         public void OnActionExecuting(ActionExecutingContext context)
         {

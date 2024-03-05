@@ -87,22 +87,6 @@ namespace ToDo_List.Controllers.Extensions
                         context.Request.HttpContext.Response.StatusCode = 401;
 
                         return Task.CompletedTask;
-                    },
-                    OnChallenge = context =>
-                    {
-                        Console.Out.WriteLineAsync();
-                        Console.Out.WriteLineAsync();
-                        Console.Out.WriteLineAsync(context.Request.Headers["Authorization"]);
-                        Console.Out.WriteLineAsync();
-                        Console.Out.WriteLineAsync();
-
-                        Console.WriteLine();
-                        Console.WriteLine();
-                        Console.WriteLine(context.Request.Headers["Authorization"]);
-                        Console.WriteLine();
-                        Console.WriteLine();
-
-                        return Task.CompletedTask;
                     }
                 };
             });

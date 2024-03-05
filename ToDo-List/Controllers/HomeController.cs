@@ -42,14 +42,14 @@ namespace ToDo_List.Controllers
         }
 
         [AllowAnonymous]
-        [ForbidAccessForAuthorizedUserFilter]
+        [RedirectAuthorizedUsersFilter]
         public async Task<IActionResult> LogIn()
         {
             return View();
         }
 
         [AllowAnonymous]
-        [ForbidAccessForAuthorizedUserFilter]
+        [RedirectAuthorizedUsersFilter]
         public async Task<IActionResult> Register()
         {
             return View();

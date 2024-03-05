@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ToDo_List.Controllers.Filters
 {
-    public class ForbidAccessForAuthorizedUserFilter : Attribute, IActionFilter
+    public class RedirectAuthorizedUsersFilter : Attribute, IActionFilter
     {
         public void OnActionExecuting(ActionExecutingContext context)
         {

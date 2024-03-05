@@ -22,11 +22,11 @@ builder.Services.AddControllersWithViews()
     .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNameCaseInsensitive = true)
     .AddMvcOptions(options =>
     {
-        options.Filters.Add<ValidatonActionFilter>();
+        options.Filters.Add<ValidationActionFilter>();
     });
 
-builder.Services.AddCors(options => options.AddPolicy("MyCORS", builder => builder
-                    .WithOrigins("https://localhost:7272")
+builder.Services.AddCors(options => options.AddPolicy("MyCORS", policyBuilder => policyBuilder
+                    .WithOrigins("https://localhost:7271")
                     .AllowAnyHeader()
                     .AllowAnyMethod())
                );
@@ -60,8 +60,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("MyCORS");
-
 app.UseCookiePolicy(new CookiePolicyOptions
 {
     MinimumSameSitePolicy = SameSiteMode.Strict,
@@ -73,13 +71,18 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseCors("MyCORS");
+
 app.UseMiddleware<TokenHandlerMiddleware>();
 
 app.UseStatusCodePages(async context =>
 {
     var response = context.HttpContext.Response;
 
-    if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
+    var isUnauthorized = response.StatusCode == (int)HttpStatusCode.Unauthorized;
+    var isNotAPIRoute = !context.HttpContext.Request.Path.ToString().Contains("/api/");
+
+    if (isUnauthorized && isNotAPIRoute)
     {
         response.Redirect("/Home/Login");
     }

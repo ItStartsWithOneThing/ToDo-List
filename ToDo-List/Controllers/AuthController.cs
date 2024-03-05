@@ -33,7 +33,7 @@ namespace ToDo_List.Controllers
         /// <response code="400">Request validation error</response>
         /// <response code="401"></response>
         [AllowAnonymous]
-        [ForbidAccessToAPIForAuthorizedUserFilter]
+        [ForbidAccessToAuthAPIForAuthorizedUserFilter]
         [HttpPost("register")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -70,7 +70,7 @@ namespace ToDo_List.Controllers
         /// <response code="400">Request validation error</response>
         /// <response code="401"></response>
         [AllowAnonymous]
-        [ForbidAccessToAPIForAuthorizedUserFilter]
+        [ForbidAccessToAuthAPIForAuthorizedUserFilter]
         [HttpPost("login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -134,7 +134,7 @@ namespace ToDo_List.Controllers
         /// <response code="401"></response>
         [AllowAnonymous]
         [HttpPost("refresh-tokens")]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)] //TODO
         public async Task<IActionResult> RefreshTokens([FromBody] string fingerPrint)

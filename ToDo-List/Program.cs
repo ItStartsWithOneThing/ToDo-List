@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Reflection;
+using ToDo_List.Controllers.ExceptionResolvers;
 using ToDo_List.Controllers.Extensions;
 using ToDo_List.Controllers.Filters;
 using ToDo_List.Controllers.Middlewares;
@@ -23,7 +24,10 @@ builder.Services.AddControllersWithViews()
     .AddMvcOptions(options =>
     {
         options.Filters.Add<ValidationActionFilter>();
+        options.Filters.Add<ExceptionFilter>();
     });
+
+builder.Services.AddScoped<IExceptionResolver, GlobalExceptionResolver>();
 
 builder.Services.AddCors(options => options.AddPolicy("MyCORS", policyBuilder => policyBuilder
                     .WithOrigins("https://localhost:7271")

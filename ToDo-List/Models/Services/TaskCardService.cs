@@ -46,7 +46,11 @@ namespace ToDo_List.Models.Services
             var newCard = _mapper.Map<TaskCard>(taskCardRequest);
             newCard.Id = Guid.NewGuid();
             newCard.UserId = userId;
-            newCard.EditedDate = DateTime.Now;
+
+            DateTime currentDate = DateTime.Now;
+            DateTime currentDateWithoutMilliseconds = currentDate.AddTicks(-(currentDate.Ticks % TimeSpan.TicksPerSecond)); // Removing milliseconds
+
+            newCard.EditedDate = currentDateWithoutMilliseconds;
 
             try
             {

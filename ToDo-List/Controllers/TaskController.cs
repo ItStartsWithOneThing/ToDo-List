@@ -34,7 +34,7 @@ namespace ToDo_List.Controllers
         /// <response code="200"></response>
         /// <response code="400">Failed to add new card</response>
         [HttpPost("add-card")]
-        [ProducesResponseType(typeof(TaskCard), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(TaskCardDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddCard([FromBody] AddNewCardRequestModel request)

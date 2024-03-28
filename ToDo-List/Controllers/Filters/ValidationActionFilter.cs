@@ -15,6 +15,7 @@ namespace ToDo_List.Controllers.Filters
         {
             if (!context.ModelState.IsValid)
             {
+                var ra = context.ActionArguments["model"];
                 context.HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
 
                 context.Result = new ObjectResult(

@@ -108,7 +108,7 @@ async function sendNewCard(isSecondCall) {
         }
         let responseJson = await response.json();
 
-        responseJson.editedDate = new Date(response.editedDate);
+        responseJson.editedDate = new Date(responseJson.editedDate);
 
         allCards.push(responseJson);
         showAllCards(allCards);
